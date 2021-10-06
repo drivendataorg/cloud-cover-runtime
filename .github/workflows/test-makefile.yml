@@ -14,8 +14,6 @@ jobs:
         os: [ 'ubuntu-latest' ]
         proc: [ 'cpu' ]
     env:
-      SHA_TAG: ${{ matrix.proc }}-${{ github.sha }}
-      LATEST_TAG: ${{ matrix.proc }}-latest
       GITHUB_ACTIONS_NO_TTY: true
 
     steps:
@@ -23,6 +21,7 @@ jobs:
 
       - name: Create some fake data
         run: |
+          pip install -U Pillow typer
           python runtime/scripts/generate_fake_inputs.py runtime/data/test_features
 
       - name: Test zipping benchmark
