@@ -5,14 +5,11 @@ import segmentation_models_pytorch as smp
 import torch
 
 
-class FloodModel(pl.LightningModule):
+class CloudModel(pl.LightningModule):
     def __init__(self):
         super().__init__()
         self.model = smp.Unet(
-            encoder_name="resnet34",
-            encoder_weights=None,
-            in_channels=2,
-            classes=2,
+            encoder_name="resnet34", encoder_weights=None, in_channels=2, classes=2,
         )
 
     def forward(self, image):

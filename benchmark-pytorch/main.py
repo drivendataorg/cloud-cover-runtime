@@ -8,7 +8,7 @@ from tqdm import tqdm
 import torch
 import typer
 
-from flood_model import FloodModel
+from cloud_model import CloudModel
 
 
 ROOT_DIRECTORY = Path("/codeexecution")
@@ -60,7 +60,7 @@ def main():
     logger.info("Loading model")
     # explicitly set where we expect smp to load the saved resnet from just to be sure
     torch.hub.set_dir(ASSETS_DIRECTORY / "torch/hub")
-    model = FloodModel()
+    model = CloudModel()
     model.load_state_dict(torch.load(ASSETS_DIRECTORY / "flood_model.pt"))
 
     logger.info("Finding chip IDs")
