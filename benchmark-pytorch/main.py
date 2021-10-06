@@ -75,7 +75,7 @@ def main():
         output_data = make_prediction(chip_id, model).astype(np.uint8)
         imwrite(output_path, output_data, dtype=np.uint8)
 
-    logger.success(f"Inference complete.")
+    logger.success("Inference complete.")
 
 
 if __name__ == "__main__":
