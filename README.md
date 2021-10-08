@@ -2,7 +2,7 @@
 
 ![Python 3.8](https://img.shields.io/badge/Python-3.8-blue) [![GPU Docker Image](https://img.shields.io/badge/Docker%20image-gpu--latest-green)](https://hub.docker.com/r/drivendata/cloud-cover-competition/tags?page=1&name=gpu-latest) [![CPU Docker Image](https://img.shields.io/badge/Docker%20image-cpu--latest-green)](https://hub.docker.com/r/drivendata/cloud-cover-competition/tags?page=1&name=cpu-latest) 
 
-Welcome to the runtime repository for the [STAC Overflow: Map Floodwater from Radar Imagery Challenge](https://www.drivendata.org/competitions/81/detect-flood-water/). This repository contains the definition of the environment where your code submissions will run. It specifies both the operating system and the software packages that will be available to your solution.
+Welcome to the runtime repository for the [TODO: Cloud Cover Challenge](https://www.drivendata.org/competitions/). This repository contains the definition of the environment where your code submissions will run. It specifies both the operating system and the software packages that will be available to your solution.
 
 <div style="background-color: lightgoldenrodyellow">
 
@@ -13,9 +13,9 @@ The [Planetary Computer Hub](https://planetarycomputer.microsoft.com/docs/overvi
 
 This repository has three primary uses for competitors:
 
-- **Example for developing your solutions**: You can find here a [baseline solution](https://github.com/drivendataorg/cloud-cover-runtime/tree/master/benchmark) `main.py` which does not do very much but will run in the runtime environment and outputs a proper submission. You can use this as a guide to bring in your model and generate a submission. You can also find an example implementation of the [PyTorch benchmark](https://github.com/drivendataorg/cloud-cover-runtime/tree/main/benchmark-pytorch) based on the [benchmark blog post](https://www.drivendata.co/blog/detect-floodwater-benchmark).
+- **Example for developing your solutions**: You can find here a [baseline solution](https://github.com/drivendataorg/cloud-cover-runtime/tree/master/benchmark) `main.py` which does not do very much but will run in the runtime environment and outputs a proper submission. You can use this as a guide to bring in your model and generate a submission. You can also find an example implementation of the [PyTorch benchmark](https://github.com/drivendataorg/cloud-cover-runtime/tree/main/benchmark-pytorch) based on the [TODO: benchmark blog post](https://www.drivendata.co/blog/).
 
-- **Testing your code submission**: It lets you test your `submission.zip` file with a locally running version of the container so you don't have to wait for it to process on the competition site to find programming errors. You can also find an [evaluation script](https://github.com/drivendataorg/cloud-cover-runtime/blob/main/runtime/scripts/metric.py) for implementing the competition metric.
+- **Testing your code submission**: Test your `submission.zip` file with a locally running version of the container to discover errors before submitting it to the competition site. You can also find an [TODO: evaluation script](https://github.com/drivendataorg/cloud-cover-runtime/blob/main/runtime/scripts/metric.py) for implementing the competition metric.
 
 - **Requesting new packages in the official runtime**: It lets you test adding additional packages to the official runtime [CPU](https://github.com/drivendataorg/cloud-cover-runtime/blob/main/runtime/environment-cpu.yml) and [GPU](https://github.com/drivendataorg/cloud-cover-runtime/blob/main/runtime/environment-gpu.yml) environments. The official runtime uses **Python 3.9.6** environments managed by [Anaconda](https://docs.conda.io/en/latest/). You can then submit a PR to request compatible packages be included in the official container image.
 
@@ -56,7 +56,7 @@ To test out the full execution pipeline, run the following commands in order in 
 
 **Note:** On machines with `nvidia-smi` but a CUDA version other than 11, `make` will automatically select the GPU image, which will fail. In this case, you will have to set `CPU_OR_GPU=cpu` manually in the commands, e.g., `CPU_OR_GPU=cpu make pull`, `CPU_OR_GPU=cpu make test-submission`. If you want to try using the GPU image on your machine but you don't have a GPU device that can be recognized, you can use `SKIP_GPU=true` which will invoke `docker` without the `--gpus all` argument.
 
-Download the [training images](https://www.drivendata.org/competitions/81/detect-flood-water/data/) from the competition and put all the `.tif` files from `training_features` into `runtime/data/test_features` so that you can test locally by pretending your training data is the actual test data expected by the execution environment but which you don't have locally.
+Download the [TODO: training images](https://www.drivendata.org/competitions/81/detect-flood-water/data/) from the competition and put all the `.tif` files from `training_features` into `runtime/data/test_features` so that you can test locally by pretending your training data is the actual test data expected by the execution environment but which you don't have locally.
 
 ```bash
 ls runtime/data/test_features/ | head -n 5
@@ -167,7 +167,7 @@ When you make a submission, the code execution platform will unzip your submissi
 
 On the official code execution platform, we will take care of mounting the data―you can assume your submission will have access to `/codeexecution/data/test_features`. You are responsible for creating the submission script that will read from `/codeexecution/data` and write out `.tif`s to `/codeexecution/submission/`. Once your code finishes, some sanity checking tests run and then the script will zip up all the `.tif`s into an archive to be scored on the platform side.
 
-Keep in mind that your submission will not have access to the internet, so everything it needs to run must be provided in the `submission.zip` you create. (You _are_ permitted to write intermediate files to `/codeexecution/submission`, but if they are `.tif` files you will want to clean them up before your script finishes so they aren't considered part of your submission.)
+There is one important difference between your local test runtime and the official code execution runtime: `make test-submission` does not impose the same network restrictions that are in place in the real competition runtime. That means some web requests that will work in the local test runtime will fail in competition runtime. You'll need to make sure that your code only makes requests to allowed web resources, such as the Planetary Computer STAC API. (You _are_ permitted to write intermediate files to `/codeexecution/submission`, but if they are `.tif` files you will want to clean them up before your script finishes so they aren't considered part of your submission.)
 
 ### Implement your solution
 
