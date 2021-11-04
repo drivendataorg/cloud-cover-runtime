@@ -1,12 +1,13 @@
 # Cloud cover
 
-![Python 3.8](https://img.shields.io/badge/Python-3.8-blue) [![GPU Docker Image](https://img.shields.io/badge/Docker%20image-gpu--latest-green)](https://hub.docker.com/r/drivendata/cloud-cover-competition/tags?page=1&name=gpu-latest) [![CPU Docker Image](https://img.shields.io/badge/Docker%20image-cpu--latest-green)](https://hub.docker.com/r/drivendata/cloud-cover-competition/tags?page=1&name=cpu-latest) 
+![Python 3.9](https://img.shields.io/badge/Python-3.9-blue) [![GPU Docker Image](https://img.shields.io/badge/Docker%20image-gpu--latest-green)](https://hub.docker.com/r/drivendata/cloud-cover-competition/tags?page=1&name=gpu-latest) [![CPU Docker Image](https://img.shields.io/badge/Docker%20image-cpu--latest-green)](https://hub.docker.com/r/drivendata/cloud-cover-competition/tags?page=1&name=cpu-latest) 
 
 Welcome to the runtime repository for the [TODO: Cloud Cover Challenge](https://www.drivendata.org/competitions/). This repository contains the definition of the environment where your code submissions will run. It specifies both the operating system and the software packages that will be available to your solution.
 
 <div style="background-color: lightgoldenrodyellow">
 
 **Note:** This repository is designed to be compatible with Microsoft's [Planetary Computer](https://github.com/microsoft/planetary-computer-containers) containers.
+
 The [Planetary Computer Hub](https://planetarycomputer.microsoft.com/docs/overview/environment) provides a convenient way to compute on data from the Planetary Computer. In this competition, you can train your model in the Planetary Computer Hub and test it using this repo. To request beta access to the Planetary Computer Hub, fill out [this form](https://planetarycomputer.microsoft.com/account/request) and include "DrivenData" in your area of study.
 
 </div>
@@ -42,8 +43,8 @@ Make sure you have the prerequisites installed.
 
  - A clone or fork of this repository
  - [Docker](https://docs.docker.com/get-docker/)
- - At least ~10GB of free space for both the training images and the Docker container images
- - GNU make (optional, but useful for using the commands in the Makefile)
+ - At least ~12 GB of free space for both the training images and the Docker container images
+ - [GNU make](https://www.gnu.org/software/make/) (optional, but useful for using the commands in the Makefile)
 
 Additional requirements to run with GPU:
 
@@ -217,10 +218,14 @@ python runtime/scripts/metric.py --help
 #      SUBMISSION_DIR  [required]
 #      ACTUAL_DIR      [required]
 
-python runtime/scripts/metric.py ./submission/ ../cloud-cover-runtime-data/test_labels/
-#    2021-08-16 12:51:41.938 | INFO     | __main__:main:47 - calculating score for 542 image pairs ...
-#    100%|█████████████████████████████████████████| 542/542 [00:01<00:00, 320.16it/s]
-#    2021-08-16 12:51:43.059 | SUCCESS  | __main__:main:49 - overall score: 0.00015550276166856222
+python runtime/scripts/metric.py submission runtime/data/test_labels
+# 2021-11-04 17:13:27.669 | INFO     | __main__:main:53 - calculating score for 10 image pairs ...
+# 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [00:00<00:00, 644.43it/s]
+# 2021-11-04 17:13:27.687 | SUCCESS  | __main__:main:55 - overall score: 0.6863734581490337
+# (condaenv) ➜  cloud-cover-runtime git:(main) ✗ python runtime/scripts/metric.py submission runtime/data/test_labels
+# 2021-11-04 17:14:10.983 | INFO     | __main__:main:53 - calculating score for 10 image pairs ...
+# 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [00:00<00:00, 617.95it/s]
+# 2021-11-04 17:14:11.002 | SUCCESS  | __main__:main:55 - overall score: 0.6863734581490337
 ```
 
 ### Reviewing the logs
