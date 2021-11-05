@@ -1,6 +1,5 @@
 # Basics
 *.py[cod]
-*.pyc
 __pycache__
 
 # OSX
@@ -27,12 +26,11 @@ coverage.xml
 *.swo
 
 # SublimeText
-# cache files for sublime text
 *.tmlanguage.cache
 *.tmPreferences.cache
 *.stTheme.cache
 
-# workspace files are user-specific
+# Workspace files are user-specific
 *.sublime-workspace
 
 # Docker
@@ -41,13 +39,11 @@ coverage.xml
 # .docker folders
 *.docker/
 
-# Ignore notebook temp files
+# Notebook temp files
 **/.ipynb_checkpoints/
 
-# local env files
+# Local env files
 .env*
-.env.local
-.env.*.local
 
 # Editor directories and files
 .idea
@@ -58,10 +54,13 @@ coverage.xml
 *.sln
 *.sw*
 
-# package stuff
+# Package stuff
 src.egg-info/
 pip-wheel-metadata/
 *.egg-info/
 
 # Submissions
 submission/
+
+# Data
+runtime/data
