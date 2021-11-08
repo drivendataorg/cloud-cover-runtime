@@ -190,7 +190,7 @@ Now you can make sure your submission runs locally prior to submitting it to the
 make pull
 ```
 
-Again, make sure you have packed up your solution in `submission/submission.zip` (or generated the sample submission with `make pack-benchmark`), then try running it:
+Again, make sure you have packed up your solution in `submission/submission.zip` (or generated the sample submission with `make pack-submission`), then try running it:
 
 ```bash
 make test-submission
