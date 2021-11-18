@@ -4,9 +4,11 @@ import numpy as np
 def intersection_over_union(pred, true):
     """
     Calculates intersection and union for a batch of images.
+
     Args:
         pred (torch.Tensor): a tensor of predictions
         true (torc.Tensor): a tensor of labels
+
     Returns:
         intersection (int): total intersection of pixels
         union (int): total union of pixels
