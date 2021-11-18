@@ -80,20 +80,17 @@ def save_predictions(chip_preds: dict, predictions_dir: os.PathLike, overwrite: 
         predictions_dir (os.PathLike): Destination directory to save the predicted TIF masks
         overwrite (bool): whether to delete and overwrite predictions_dir if it already exists
     """
-    if (
-        predictions_dir.exists()
-        and len(list(predictions_dir.iterdir())) > 0
-        and not overwrite
-    ):
-        raise ValueError(
-            f"{predictions_dir} already exists. To overwrite it, set overwrite to True"
-        )
-    elif predictions_dir.exists() and len(list(predictions_dir.iterdir())) > 0:
-        print(
-            f"{predictions_dir} already exists and contains files. Deleting it to generate new predictions."
-        )
-        shutil.rmtree(predictions_dir)
-    predictions_dir.mkdir(parents=True, exist_ok=True)
+    if predictions_dir.exists():
+        if len(list(predictions_dir.iterdir())) > 0 and not overwrite:
+            raise ValueError(
+                f"{predictions_dir} already exists. To overwrite it, set overwrite to True"
+            )
+        else:
+            print(
+                f"{predictions_dir} already exists. Deleting it to generate new predictions."
+            )
+            shutil.rmtree(predictions_dir)
+    predictions_dir.mkdir(parents=True)
 
     for chip_id, chip_pred in tqdm(chip_preds.items()):
         chip_pred_path = predictions_dir / f"{chip_id}.tif"
@@ -107,6 +104,7 @@ def main(
     predictions_dir: Path = SUBMISSION_DIRECTORY,
     overwrite: bool = False,
     bands: list[str] = ["B02", "B03", "B04", "B08"],
+    fast_dev_run: bool = False,
 ):
     """
     Generate predictions for the chips in test_features_dir using the model saved at model_weights_path.
@@ -129,8 +127,10 @@ def main(
     model = CloudModel(bands=bands)
     model.load_state_dict(torch.load(model_weights_path))
 
-    logger.info("Loading metadata")
+    logger.info("Loading test metadata")
     test_metadata = get_metadata(test_features_dir, bands=bands)
+    if fast_dev_run:
+        test_metadata = test_metadata.head()
     logger.info(f"Found {len(test_metadata)} chips")
 
     logger.info("Generating predictions in batches")
