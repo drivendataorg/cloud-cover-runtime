@@ -16,7 +16,7 @@ This repository has three primary uses for competitors:
 
 - **Example for developing your solutions**: You can find here a [baseline solution](https://github.com/drivendataorg/cloud-cover-runtime/tree/master/benchmark) `main.py` which does not do very much but will run in the runtime environment and outputs a proper submission. You can use this as a guide to bring in your model and generate a submission. You can also find an example implementation of the [PyTorch benchmark](https://github.com/drivendataorg/cloud-cover-runtime/tree/main/benchmark-pytorch) based on the [TODO: benchmark blog post](https://www.drivendata.co/blog/).
 
-- **Testing your code submission**: Test your `submission.zip` file with a locally running version of the container to discover errors before submitting it to the competition site. You can also find an [evaluation script](https://github.com/drivendataorg/cloud-cover-runtime/blob/main/runtime/scripts/metric.py) for implementing the competition metric.
+- **Testing your code submission**: Test your `code_submission.zip` file with a locally running version of the container to discover errors before submitting it to the competition site. You can also find an [evaluation script](https://github.com/drivendataorg/cloud-cover-runtime/blob/main/runtime/scripts/metric.py) for implementing the competition metric.
 
 - **Requesting new packages in the official runtime**: It lets you test adding additional packages to the official runtime [CPU](https://github.com/drivendataorg/cloud-cover-runtime/blob/main/runtime/environment-cpu.yml) and [GPU](https://github.com/drivendataorg/cloud-cover-runtime/blob/main/runtime/environment-gpu.yml) environments. The official runtime uses **Python 3.9.6** environments managed by [Anaconda](https://docs.conda.io/en/latest/). You can then submit a PR to request compatible packages be included in the official container image.
 
@@ -101,7 +101,7 @@ You should see output like this in the end (and find the same logs in the folder
 
 ```
 $ make pack-benchmark
-cd benchmark_src; zip -r ../submission/submission.zip ./*
+cd benchmark_src; zip -r ../submission/code_submission.zip ./*
   adding: assets/ (stored 0%)
   adding: assets/torch/ (stored 0%)
   adding: assets/torch/hub/ (stored 0%)
@@ -146,8 +146,8 @@ zstd                      1.5.0                ha95c52a_0    conda-forge
 ######################################
 + echo 'Unpacking submission...'
 Unpacking submission...
-+ unzip ./submission/submission.zip -d ./
-Archive:  ./submission/submission.zip
++ unzip ./submission/code_submission.zip -d ./
+Archive:  ./submission/code_submission.zip
    creating: ./assets/
    creating: ./assets/torch/
    creating: ./assets/torch/hub/
@@ -242,7 +242,7 @@ In Docker parlance, your computer is the "host" that runs the container. The con
  - the `data` directory on the host machine is mounted in the container as a read-only directory `/codeexecution/data`
  - the `submission` directory on the host machine is mounted in the container as `/codeexecution/submission`
 
-When you make a submission, the code execution platform will unzip your submission assets to the `/codeexecution` folder. This must result in a `main.py` in the top level `/codeexecution` working directory. (Hint: make sure your `main.py` is compressed at the top level of your `tar`'ed submission and not nested into a directory.)
+When you make a code submission, the code execution platform will unzip your submission assets to the `/codeexecution` folder. This must result in a `main.py` in the top level `/codeexecution` working directory. (Hint: make sure your `main.py` is compressed at the top level of your `tar`'ed submission and not nested into a directory.)
 
 On the official code execution platform, we will take care of mounting the data―you can assume your submission will have access to `/codeexecution/data/test_features`. You are responsible for creating the submission script that will read from `/codeexecution/data` and write out `.tif`s to `/codeexecution/submission/`. Once your code finishes, some sanity checking tests run and then the script will zip up all the `.tif`s into an archive to be scored on the platform side.
 
@@ -250,7 +250,7 @@ There is one important difference between your local test runtime and the offici
 
 ### Implement your solution
 
-In order to test your code submission, you will need a code submission! Implement your solution as a Python script named `main.py`. Next, create a `submission.zip` file containing your code and model assets.
+In order to test your code submission, you will need a code submission! Implement your solution as a Python script named `main.py`. Next, create a `code_submission.zip` file containing your code and model assets.
 
 **Note: You will implement all of your training and experiments on your machine. It is highly recommended that you use the same package versions that are in the runtime conda environments ([Python (CPU)](runtime/environment-cpu.yml), [Python (GPU)](runtime/environment-gpu.yml). If you don't wish to use Docker these exact packages can be installed with `conda`.**
 
@@ -258,7 +258,7 @@ The [submission format page](https://www.drivendata.org/competitions/83/cloud-co
 
 ### Example benchmark submission
 
-We wrote a benchmark in Python to serve as a concrete example of a submission. Use `make pack-benchmark` to create the benchmark submission from the source code. The command zips everything in the `benchmark` folder and saves the zip archive to `submission/submission.zip`. To prevent losing your work, this command will not overwrite an existing submission. To generate a new submission, you will first need to remove the existing `submission/submission.zip`.
+We wrote a benchmark in Python to serve as a concrete example of a submission. Use `make pack-benchmark` to create the benchmark submission from the source code. The command zips everything in the `benchmark` folder and saves the zip archive to `submission/code_submission.zip`. To prevent losing your work, this command will not overwrite an existing submission. To generate a new submission, you will first need to remove the existing `submission/code_submission.zip`.
 
 ### Running your submission
 
@@ -268,7 +268,7 @@ Now you can make sure your submission runs locally prior to submitting it to the
 make pull
 ```
 
-Again, make sure you have packed up your solution in `submission/submission.zip` (or generated the sample submission with `make pack-submission`), then try running it:
+Again, make sure you have packed up your solution in `submission/code_submission.zip` (or generated the sample submission with `make pack-submission`), then try running it:
 
 ```bash
 make test-submission

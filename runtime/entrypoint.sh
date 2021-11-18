@@ -11,15 +11,15 @@ exit_code=0
     echo "######################################"
 
     echo "Unpacking submission..."
-    unzip ./submission/submission.zip -d ./
+    unzip ./submission/code_submission.zip -d ./
     ls -alh
 
     if [ -f "main.py" ]
     then
-        echo "Running submission with Python"
+        echo "Running code submission with Python"
         conda run --no-capture-output -n condaenv python main.py
     else
-        echo "ERROR: Could not find main.py in submission.zip"
+        echo "ERROR: Could not find main.py in code_submission.zip"
         exit_code=1
     fi
 
