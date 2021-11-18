@@ -31,7 +31,9 @@ def get_metadata(features_dir: os.PathLike, bands: list[str]):
         bands (list[str]): list of bands provided for each chip
     """
     chip_metadata = pd.DataFrame(index=[f"{band}_path" for band in bands])
-    chip_ids = [pth.name for pth in features_dir.iterdir()]
+    chip_ids = (
+        pth.name for pth in features_dir.iterdir() if not pth.name.startswith(".")
+    )
 
     for chip_id in chip_ids:
         chip_bands = [features_dir / chip_id / f"{band}.tif" for band in bands]
