@@ -18,6 +18,8 @@ ASSETS_DIRECTORY = ROOT_DIRECTORY / "assets"
 DATA_DIRECTORY = ROOT_DIRECTORY / "data"
 INPUT_IMAGES_DIRECTORY = DATA_DIRECTORY / "test_features"
 
+os.environ["TORCH_HOME"] = str(ASSETS_DIRECTORY)
+
 
 def get_metadata(features_dir: os.PathLike, bands: list[str]):
     """
@@ -70,7 +72,7 @@ def make_predictions(model: CloudModel, x_paths: pd.DataFrame, bands: list[str])
     return chip_preds
 
 
-def save_predictions(chip_preds: dict, predictions_dir: os.PathLike, overwrite: bool):
+def save_predictions(chip_preds: dict, predictions_dir: os.PathLike):
     """
     Save the predictions provided in chip_preds to predictions_dir.
 
@@ -78,20 +80,7 @@ def save_predictions(chip_preds: dict, predictions_dir: os.PathLike, overwrite: 
         chip_preds (dict): Dictionary of predictions where the keys are chip_ids and the values
             are predicted TIF masks as numpy arrays
         predictions_dir (os.PathLike): Destination directory to save the predicted TIF masks
-        overwrite (bool): whether to delete and overwrite predictions_dir if it already exists
     """
-    if predictions_dir.exists():
-        if len(list(predictions_dir.iterdir())) > 0 and not overwrite:
-            raise ValueError(
-                f"{predictions_dir} already exists. To overwrite it, set overwrite to True"
-            )
-        else:
-            print(
-                f"{predictions_dir} already exists. Deleting it to generate new predictions."
-            )
-            shutil.rmtree(predictions_dir)
-    predictions_dir.mkdir(parents=True)
-
     for chip_id, chip_pred in tqdm(chip_preds.items()):
         chip_pred_path = predictions_dir / f"{chip_id}.tif"
         chip_pred_im = Image.fromarray(chip_pred)
@@ -102,7 +91,6 @@ def main(
     model_weights_path: Path = ASSETS_DIRECTORY / "cloud_model.pt",
     test_features_dir: Path = DATA_DIRECTORY / "test_features",
     predictions_dir: Path = SUBMISSION_DIRECTORY,
-    overwrite: bool = False,
     bands: list[str] = ["B02", "B03", "B04", "B08"],
     fast_dev_run: bool = False,
 ):
@@ -114,8 +102,6 @@ def main(
         model_weights_path (Path): Path to the weights of a trained CloudModel
         test_features_dir (Path): Path to the features for the test data
         predictions_dir (Path): Destination directory to save the predicted TIF masks
-        overwrite (bool, optional): Whether to delete and overwrite predictions_dir if it already exists.
-            Defaults to False.
         bands (list[str], optional): List of bands provided for each chip
     """
     if not test_features_dir.exists():
@@ -137,7 +123,7 @@ def main(
     chip_preds = make_predictions(model, test_metadata, bands)
 
     logger.info(f"Saving predictions to {predictions_dir}")
-    save_predictions(chip_preds, predictions_dir, overwrite=overwrite)
+    save_predictions(chip_preds, predictions_dir)
     logger.info(f"Saved {len(list(predictions_dir.iterdir()))} predictions")
 
 

@@ -93,6 +93,8 @@ endif
 	docker run \
 		${TTY_ARGS} \
 		${GPU_ARGS} \
+		--rm \
+		--name cloud_cover_submission \
 		--mount type=bind,source="$(shell pwd)"/runtime/data,target=/codeexecution/data,readonly \
 		--mount type=bind,source="$(shell pwd)"/runtime/tests,target=/codeexecution/tests,readonly \
 		--mount type=bind,source="$(shell pwd)"/runtime/entrypoint.sh,target=/codeexecution/entrypoint.sh \

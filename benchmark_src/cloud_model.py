@@ -1,8 +1,9 @@
+from typing import Optional
+
 import pandas as pd
 import pytorch_lightning as pl
 import segmentation_models_pytorch as smp
 import torch
-from typing import Optional
 
 from cloud_dataset import CloudDataset
 from losses import intersection_over_union
@@ -190,6 +191,7 @@ class CloudModel(pl.LightningModule):
         )
         if self.gpu:
             unet_model.cuda()
+
         return unet_model
 
     def fit(self):
