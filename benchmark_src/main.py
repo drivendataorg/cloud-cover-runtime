@@ -17,7 +17,7 @@ ASSETS_DIRECTORY = ROOT_DIRECTORY / "assets"
 DATA_DIRECTORY = ROOT_DIRECTORY / "data"
 INPUT_IMAGES_DIRECTORY = DATA_DIRECTORY / "test_features"
 
-os.environ["TORCH_HOME"] = str(ASSETS_DIRECTORY)
+os.environ["TORCH_HOME"] = str(ASSETS_DIRECTORY / "torch")
 
 
 def get_metadata(features_dir: os.PathLike, bands: list[str]):
