@@ -1,81 +1,142 @@
 import os
 from pathlib import Path
+import shutil
 
 from loguru import logger
-import numpy as np
-from tifffile import imwrite
+import pandas as pd
+from PIL import Image
 from tqdm import tqdm
 import torch
 import typer
 
-from cloud_model import CloudModel
+from benchmark_src.cloud_dataset import CloudDataset
+from benchmark_src.cloud_model import CloudModel
+
+PROJECT_DIR = Path.cwd().parent
 
 
-ROOT_DIRECTORY = Path("/codeexecution")
-SUBMISSION_DIRECTORY = ROOT_DIRECTORY / "submission"
-ASSETS_DIRECTORY = ROOT_DIRECTORY / "assets"
-DATA_DIRECTORY = ROOT_DIRECTORY / "data"
-INPUT_IMAGES_DIRECTORY = DATA_DIRECTORY / "test_features"
-
-# make sure the smp loader can find our torch assets because we don't have internet!
-os.environ["TORCH_HOME"] = str(ASSETS_DIRECTORY / "torch")
-
-
-def make_prediction(chip_id, model):
+def get_metadata(features_dir: os.PathLike, bands: list[str]):
     """
-    Given a chip_id, read in the vv/vh bands and predict a water mask.
+    Given a folder of feature data, return a dataframe where the index is the chip id
+    and there is a column for the path to each band's TIF image.
 
     Args:
-        chip_id (str): test chip id
-
-    Returns:
-        output_prediction (arr): prediction as a numpy array
+        features_dir (os.PathLike): path to the directory of feature data, which should have
+            a folder for each chip
+        bands (list[str]): list of bands provided for each chip
     """
-    logger.info("Starting inference.")
-    try:
-        vv_path = INPUT_IMAGES_DIRECTORY / f"{chip_id}_vv.tif"
-        vh_path = INPUT_IMAGES_DIRECTORY / f"{chip_id}_vh.tif"
-        output_prediction = model.predict(vv_path, vh_path)
-    except Exception as e:
-        logger.error(f"No bands found for {chip_id}. {e}")
-        raise
-    return output_prediction
+    chip_metadata = pd.DataFrame(index=[f"{band}_path" for band in bands])
+    chip_ids = [pth.name for pth in features_dir.iterdir()]
+
+    for chip_id in chip_ids:
+        chip_bands = [features_dir / chip_id / f"{band}.tif" for band in bands]
+        chip_metadata[chip_id] = chip_bands
+
+    return chip_metadata.transpose().reset_index().rename(columns={"index": "chip_id"})
 
 
-def get_expected_chip_ids():
+def make_predictions(model: CloudModel, x_paths: pd.DataFrame, bands: list[str]):
     """
-    Use the test features directory to see which images are expected.
+    Returns a dictionary where each key is the chip id and each value is the
+    predict cloud mask as a numpy array.
+
+    Args:
+        model (CloudModel): an instantiated CloudModel based on pl.LightningModule
+        x_paths (pd.DataFrame): a dataframe with a row for each chip. There must be a column for chip_id,
+                and a column with the path to the TIF for each of bands provided
+        bands (list[str]): list of bands provided for each chip
     """
-    paths = INPUT_IMAGES_DIRECTORY.glob("*.tif")
-    # Return one chip id per two bands (VV/VH)
-    ids = list(sorted(set(path.stem.split("_")[0] for path in paths)))
-    return ids
+    test_dataset = CloudDataset(x_paths=x_paths, bands=bands)
+    test_dataloader = torch.utils.data.DataLoader(
+        test_dataset,
+        batch_size=model.batch_size,
+        num_workers=model.num_workers,
+        shuffle=False,
+        pin_memory=True,
+    )
+
+    chip_preds = {}
+    for batch in tqdm(test_dataloader, total=len(test_dataloader)):
+        x = batch["chip"]
+        preds = model.forward(x)
+        preds = torch.softmax(preds, dim=1)[:, 1]
+        preds = (preds > 0.5).detach().numpy().astype("uint8")
+        chip_preds.update(dict(zip(batch["chip_id"], preds)))
+
+    return chip_preds
 
 
-def main():
+def save_predictions(chip_preds: dict, predictions_dir: os.PathLike, overwrite: bool):
     """
-    For each set of two input bands, generate an output file
-    using the `make_predictions` function.
+    Save the predictions provided in chip_preds to predictions_dir.
+
+    Args:
+        chip_preds (dict): Dictionary of predictions where the keys are chip_ids and the values
+            are predicted TIF masks as numpy arrays
+        predictions_dir (os.PathLike): Destination directory to save the predicted TIF masks
+        overwrite (bool): whether to delete and overwrite predictions_dir if it already exists
     """
+    if predictions_dir.exists():
+        if len(list(predictions_dir.iterdir())) > 0 and not overwrite:
+            raise ValueError(
+                f"{predictions_dir} already exists. To overwrite it, set overwrite to True"
+            )
+        else:
+            print(
+                f"{predictions_dir} already exists. Deleting it to generate new predictions."
+            )
+            shutil.rmtree(predictions_dir)
+    predictions_dir.mkdir(parents=True)
+
+    for chip_id, chip_pred in tqdm(chip_preds.items()):
+        chip_pred_path = predictions_dir / f"{chip_id}.tif"
+        chip_pred_im = Image.fromarray(chip_pred)
+        chip_pred_im.save(chip_pred_path)
+
+
+def main(
+    model_weights_path: os.PathLike = PROJECT_DIR
+    / "benchmark/benchmark_src/assets/cloud_model.pt",
+    test_features_dir: os.PathLike = PROJECT_DIR
+    / "data/interim/processed_sample/public/test_features",
+    predictions_dir: os.PathLike = PROJECT_DIR / "data/interim/test_sample_preds",
+    overwrite: bool = False,
+    bands: list[str] = ["B02", "B03", "B04", "B08"],
+    fast_dev_run: bool = False,
+):
+    """
+    Generate predictions for the chips in test_features_dir using the model saved at model_weights_path.
+    Predictions are saved in predictions_dir.
+
+    Args:
+        model_weights_path (os.PathLike): Path to the weights of a trained CloudModel
+        test_features_dir (os.PathLike): Path to the features for the test data
+        predictions_dir (os.PathLike): Destination directory to save the predicted TIF masks
+        overwrite (bool, optional): Whether to delete and overwrite predictions_dir if it already exists.
+            Defaults to False.
+        bands (list[str], optional): List of bands provided for each chip
+    """
+    if not test_features_dir.exists():
+        raise ValueError(
+            f"The directory for test feature images must exists and {test_features_dir} does not exist"
+        )
+
     logger.info("Loading model")
-    # explicitly set where we expect smp to load the saved resnet from just to be sure
-    torch.hub.set_dir(ASSETS_DIRECTORY / "torch/hub")
-    model = CloudModel()
-    model.load_state_dict(torch.load(ASSETS_DIRECTORY / "flood_model.pt"))
+    model = CloudModel(bands=bands)
+    model.load_state_dict(torch.load(model_weights_path))
 
-    logger.info("Finding chip IDs")
-    chip_ids = get_expected_chip_ids()
-    if not chip_ids:
-        typer.echo("No input images found!")
-        raise typer.Exit(code=1)
+    logger.info("Loading test metadata")
+    test_metadata = get_metadata(test_features_dir, bands=bands)
+    if fast_dev_run:
+        test_metadata = test_metadata.head()
+    logger.info(f"Found {len(test_metadata)} chips")
 
-    logger.info(f"Found {len(chip_ids)} test chip_ids. Generating predictions.")
-    for chip_id in tqdm(chip_ids, miniters=25):
-        output_path = SUBMISSION_DIRECTORY / f"{chip_id}.tif"
-        output_data = make_prediction(chip_id, model).astype(np.uint8)
-        imwrite(output_path, output_data, dtype=np.uint8)
+    logger.info("Generating predictions in batches")
+    chip_preds = make_predictions(model, test_metadata, bands)
 
-    logger.success("Inference complete.")
+    logger.info(f"Saving predictions to {predictions_dir}")
+    save_predictions(chip_preds, predictions_dir, overwrite=overwrite)
+    logger.info(f"Saved {len(list(predictions_dir.iterdir()))} predictions")
 
 
 if __name__ == "__main__":
