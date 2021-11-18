@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-import shutil
 
 from loguru import logger
 import pandas as pd
@@ -124,7 +123,7 @@ def main(
 
     logger.info(f"Saving predictions to {predictions_dir}")
     save_predictions(chip_preds, predictions_dir)
-    logger.info(f"Saved {len(list(predictions_dir.iterdir()))} predictions")
+    logger.info(f"""Saved {len(list(predictions_dir.glob("*.tif")))} predictions""")
 
 
 if __name__ == "__main__":
