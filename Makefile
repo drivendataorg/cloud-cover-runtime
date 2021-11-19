@@ -52,36 +52,36 @@ build:
 	docker build --build-arg CPU_OR_GPU=${CPU_OR_GPU} -t ${LOCAL_IMAGE} runtime
 
 # ================================================================================================
-# Commands for testing that your code_submission.zip will execute
+# Commands for testing that your submission.zip will execute
 # ================================================================================================
 
 ## Pulls the official container tagged cpu-latest or gpu-latest from Docker hub
 pull:
 	docker pull ${IMAGE}
 
-## Creates a submission/code_submission.zip file from the benchmark source code in benchmark_src
+## Creates a submission/submission.zip file from the benchmark source code in benchmark_src
 pack-benchmark:
 # Don't overwrite so no work is lost accidentally
-ifneq (,$(wildcard ./submission/code_submission.zip))
-	$(error You already have a submission/code_submission.zip file. Rename or remove that file (e.g., rm submission/code_submission.zip).)
+ifneq (,$(wildcard ./submission/submission.zip))
+	$(error You already have a submission/submission.zip file. Rename or remove that file (e.g., rm submission/submission.zip).)
 endif
-	cd benchmark_src; zip -r ../submission/code_submission.zip ./*
+	cd benchmark_src; zip -r ../submission/submission.zip ./*
 
-## Creates a submission/code_submission.zip file from the source code in submission_src
+## Creates a submission/submission.zip file from the source code in submission_src
 pack-submission:
 # Don't overwrite so no work is lost accidentally
-ifneq (,$(wildcard ./submission/code_submission.zip))
-	$(error You already have a submission/code_submission.zip file. Rename or remove that file (e.g., rm submission/code_submission.zip).)
+ifneq (,$(wildcard ./submission/submission.zip))
+	$(error You already have a submission/submission.zip file. Rename or remove that file (e.g., rm submission/submission.zip).)
 endif
-	cd submission_src; zip -r ../submission/code_submission.zip ./*
+	cd submission_src; zip -r ../submission/submission.zip ./*
 
 
-## Runs container with submission/code_submission.zip as your submission and data as the data to work with
+## Runs container with submission/submission.zip as your submission and data as the data to work with
 test-submission: _submission_write_perms
 
 # if submission file does not exist
-ifeq (,$(wildcard ./submission/code_submission.zip))
-	$(error To test your submission, you must first put a "code_submission.zip" file in the "submission" folder. \
+ifeq (,$(wildcard ./submission/submission.zip))
+	$(error To test your submission, you must first put a "submission.zip" file in the "submission" folder. \
 	  If you want to use the benchmark, you can run `make pack-benchmark` first)
 endif
 
