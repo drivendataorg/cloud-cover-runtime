@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import rasterio
 import torch
-from typing import Optional
+from typing import Optional, List
 
 
 class CloudDataset(torch.utils.data.Dataset):
@@ -14,7 +14,7 @@ class CloudDataset(torch.utils.data.Dataset):
     def __init__(
         self,
         x_paths: pd.DataFrame,
-        bands: list[str],
+        bands: List[str],
         y_paths: Optional[pd.DataFrame] = None,
         transforms: Optional[list] = None,
     ):

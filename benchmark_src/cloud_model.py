@@ -1,23 +1,26 @@
-from pathlib import Path
 from typing import Optional
 
 import pandas as pd
 import pytorch_lightning as pl
 import segmentation_models_pytorch as smp
 import torch
-from typing import Optional
+from typing import Optional, List
 
 from benchmark_src.cloud_dataset import CloudDataset
 from benchmark_src.losses import intersection_over_union
 
-from cloud_dataset import CloudDataset
-from losses import intersection_over_union
+try:
+    from cloud_dataset import CloudDataset
+    from losses import intersection_over_union
+except ImportError:
+    from benchmark_src.cloud_dataset import CloudDataset
+    from benchmark_src.losses import intersection_over_union
 
 
 class CloudModel(pl.LightningModule):
     def __init__(
         self,
-        bands: list[str],
+        bands: List[str],
         x_train: Optional[pd.DataFrame] = None,
         y_train: Optional[pd.DataFrame] = None,
         x_val: Optional[pd.DataFrame] = None,
@@ -110,18 +113,18 @@ class CloudModel(pl.LightningModule):
         preds = self.forward(x)
 
         # Calculate training loss
-        xe_loss = torch.nn.CrossEntropyLoss(reduction="none")(preds, y).mean()
+        loss = torch.nn.CrossEntropyLoss(reduction="none")(preds, y).mean()
 
         # Log batch xe_dice_loss
         self.log(
-            "xe_loss",
-            xe_loss,
+            "loss",
+            loss,
             on_step=True,
             on_epoch=True,
             prog_bar=True,
             logger=True,
         )
-        return xe_loss
+        return loss
 
     def validation_step(self, batch: dict, batch_idx: int):
         """
@@ -198,10 +201,3 @@ class CloudModel(pl.LightningModule):
             unet_model.cuda()
 
         return unet_model
-
-    def fit(self):
-        # Set up and fit Trainer object
-        trainer_params = self.hparams.get("trainer_params", {})
-        trainer_params.update({"gpus": None if not self.gpu else 1})
-        self.trainer = pl.Trainer(**trainer_params)
-        self.trainer.fit(self)

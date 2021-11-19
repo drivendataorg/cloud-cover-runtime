@@ -1,19 +1,23 @@
 import os
 from pathlib import Path
-import shutil
+from typing import List
 
 from loguru import logger
 import pandas as pd
 from PIL import Image
-from tqdm import tqdm
 import torch
 import typer
 
-from cloud_dataset import CloudDataset
-from cloud_model import CloudModel
+try:
+    from cloud_dataset import CloudDataset
+    from cloud_model import CloudModel
+except ImportError:
+    from benchmark_src.cloud_dataset import CloudDataset
+    from benchmark_src.cloud_model import CloudModel
+
 
 ROOT_DIRECTORY = Path("/codeexecution")
-SUBMISSION_DIRECTORY = ROOT_DIRECTORY / "submission"
+PREDICTIONS_DIRECTORY = ROOT_DIRECTORY / "predictions"
 ASSETS_DIRECTORY = ROOT_DIRECTORY / "assets"
 DATA_DIRECTORY = ROOT_DIRECTORY / "data"
 INPUT_IMAGES_DIRECTORY = DATA_DIRECTORY / "test_features"
@@ -21,7 +25,7 @@ INPUT_IMAGES_DIRECTORY = DATA_DIRECTORY / "test_features"
 os.environ["TORCH_HOME"] = str(ASSETS_DIRECTORY / "torch")
 
 
-def get_metadata(features_dir: os.PathLike, bands: list[str]):
+def get_metadata(features_dir: os.PathLike, bands: List[str]):
     """
     Given a folder of feature data, return a dataframe where the index is the chip id
     and there is a column for the path to each band's TIF image.
@@ -82,23 +86,28 @@ def make_predictions(
 def main(
     model_weights_path: Path = ASSETS_DIRECTORY / "cloud_model.pt",
     test_features_dir: Path = DATA_DIRECTORY / "test_features",
-    predictions_dir: Path = SUBMISSION_DIRECTORY,
-    bands: list[str] = ["B02", "B03", "B04", "B08"],
+    predictions_dir: Path = PREDICTIONS_DIRECTORY,
+    bands: List[str] = ["B02", "B03", "B04", "B08"],
     fast_dev_run: bool = False,
 ):
     """
-    Generate predictions for the chips in test_features_dir using the model saved at model_weights_path.
-    Predictions are saved in predictions_dir.
+    Generate predictions for the chips in test_features_dir using the model saved at
+    model_weights_path.
+
+    Predictions are saved in predictions_dir. The default paths to all three files are based on
+    the structure of the code execution runtime.
 
     Args:
-        model_weights_path (Path): Path to the weights of a trained CloudModel
-        test_features_dir (Path): Path to the features for the test data
-        predictions_dir (Path): Destination directory to save the predicted TIF masks
-        bands (list[str], optional): List of bands provided for each chip
+        model_weights_path (os.PathLike): Path to the weights of a trained CloudModel.
+        test_features_dir (os.PathLike, optional): Path to the features for the test data. Defaults
+            to 'data/test_features' in the same directory as main.py
+        predictions_dir (os.PathLike, optional): Destination directory to save the predicted TIF masks
+            Defaults to 'predictions' in the same directory as main.py
+        bands (List[str], optional): List of bands provided for each chip
     """
     if not test_features_dir.exists():
         raise ValueError(
-            f"The directory for test feature images must exists and {test_features_dir} does not exist"
+            f"The directory for test feature images must exist and {test_features_dir} does not exist"
         )
 
     logger.info("Loading model")
