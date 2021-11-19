@@ -28,10 +28,12 @@ exit_code=0
     conda run -n condaenv pytest -v tests/test_submission.py
 
     echo "Compressing files in a gzipped tar archive for submission"
-    cd ./submission \
+    cd ./predictions \
       && tar czf ./submission.tar.gz *.tif \
       && rm ./*.tif \
       && cd ..
+
+    mv predictions/submission.tar.gz submission
 
     echo "... finished"
     du -h submission/submission.tar.gz

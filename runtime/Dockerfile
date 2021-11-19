@@ -68,8 +68,8 @@ RUN mamba env create --name ${CONDA_ENV} -f /home/${NB_USER}/environment.yml  \
 
 # Copy run script into working dir and set it as the working doie
 WORKDIR /codeexecution
+RUN mkdir data predictions submission
 COPY --chown=appuser:appuser scripts /codeexecution/scripts
 COPY --chown=appuser:appuser tests /codeexecution/tests
-COPY --chown=appuser:appuser data /codeexecution/data
 COPY --chown=appuser:appuser entrypoint.sh /codeexecution/entrypoint.sh
 CMD ["/bin/bash", "/codeexecution/entrypoint.sh"]
