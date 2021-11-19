@@ -111,7 +111,7 @@ def main(
         )
 
     logger.info("Loading model")
-    model = CloudModel(bands=bands, hparams={"encoder_weights": None})
+    model = CloudModel(bands=bands, hparams={"weights": None})
     model.load_state_dict(torch.load(model_weights_path))
 
     logger.info("Loading test metadata")
