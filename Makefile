@@ -32,6 +32,12 @@ ifneq (true, ${GITHUB_ACTIONS_NO_TTY})
 TTY_ARGS = -it
 endif
 
+# option to block or allow internet access from the submission Docker container
+ifeq (true, ${BLOCK_INTERNET})
+NETWORK_ARGS = --network none
+endif
+
+
 # To run a submission, use local version if that exists; otherwise, use official version
 # setting SUBMISSION_IMAGE as an environment variable will override the image
 SUBMISSION_IMAGE ?= $(shell docker images -q ${LOCAL_IMAGE})
@@ -76,9 +82,8 @@ endif
 	cd submission_src; zip -r ../submission/submission.zip ./*
 
 
-## Runs container with submission/submission.zip as your submission and data as the data to work with
+## Runs container using code from `submission/submission.zip` and data from `data/`
 test-submission: _submission_write_perms
-
 # if submission file does not exist
 ifeq (,$(wildcard ./submission/submission.zip))
 	$(error To test your submission, you must first put a "submission.zip" file in the "submission" folder. \
@@ -93,6 +98,7 @@ endif
 	docker run \
 		${TTY_ARGS} \
 		${GPU_ARGS} \
+		${NETWORK_ARGS} \
 		--rm \
 		--name cloud_cover_submission \
 		--mount type=bind,source="$(shell pwd)"/runtime/data,target=/codeexecution/data,readonly \

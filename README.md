@@ -258,7 +258,7 @@ $ tree /codeexecution
 │       │   ├── B03.tif
 │       │   ├── B04.tif
 │       │   └── B08.tif
-│       │── ...
+│       ├── ...
 │       └── zzzz
 │           ├── B02.tif
 │           ├── B03.tif
@@ -266,16 +266,16 @@ $ tree /codeexecution
 │           └── B08.tif
 ├── main.py  <-- your code submission main.py and any additional assets
 ├── my_model.py  <-- additional assets from your submission.zip
-├── my_model.pt  <-- additional assets from your submission.zip
+├── ...  <-- additional assets from your submission.zip
 ├── predictions  <-- write your predictions to this directory
-|   ├── aaaa.tif  <-- your predicted cloud cover masks
-|   ├── ...
-|   └── zzzz.tif
+│   ├── aaaa.tif  <-- your predicted cloud cover masks
+│   ├── ...
+│   └── zzzz.tif
 └── submission
     └── log.txt  <-- log messages emitted while running your code
 ```
 
-There is one important difference between your local test runtime and the official code execution runtime: `make test-submission` does not impose the same network restrictions that are in place in the real competition runtime. That means some web requests that will work in the local test runtime will fail in competition runtime. You'll need to make sure that your code only makes requests to allowed web resources, such as the Planetary Computer STAC API. (You _are_ permitted to write intermediate files to `/codeexecution/predictions`, but if they are `.tif` files you will want to clean them up before your script finishes so they aren't considered part of your submission.)
+There is one important difference between your local test runtime and the official code execution runtime: `make test-submission` does not impose the same network restrictions that are in place in the real competition runtime, which is to block all internet access except to the Planetary Computer STAC API. By default, `make test-submission` will allow all internet access, which  means some web requests that will work in the local test runtime will fail in competition runtime. You can test your submission _without_ internet access by running `BLOCK_INTERNET=true make test-submission`, but then calls to the Planetary Computer STAC API will fail locally. It's up to you to make sure that your code only makes requests to allowed web resources, such as the Planetary Computer STAC API.
 
 ### Implement your solution
 
