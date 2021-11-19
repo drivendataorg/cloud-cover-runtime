@@ -42,16 +42,20 @@ def get_metadata(features_dir: os.PathLike, bands: list[str]):
     return chip_metadata.transpose().reset_index().rename(columns={"index": "chip_id"})
 
 
-def make_predictions(model: CloudModel, x_paths: pd.DataFrame, bands: list[str]):
-    """
-    Returns a dictionary where each key is the chip id and each value is the
-    predict cloud mask as a numpy array.
+def make_predictions(
+    model: CloudModel,
+    x_paths: pd.DataFrame,
+    bands: list[str],
+    predictions_dir: os.PathLike,
+):
+    """Predicts cloud cover and saves results to the predictions directory.
 
     Args:
         model (CloudModel): an instantiated CloudModel based on pl.LightningModule
         x_paths (pd.DataFrame): a dataframe with a row for each chip. There must be a column for chip_id,
                 and a column with the path to the TIF for each of bands provided
         bands (list[str]): list of bands provided for each chip
+        predictions_dir (os.PathLike): Destination directory to save the predicted TIF masks
     """
     test_dataset = CloudDataset(x_paths=x_paths, bands=bands)
     test_dataloader = torch.utils.data.DataLoader(
@@ -62,30 +66,16 @@ def make_predictions(model: CloudModel, x_paths: pd.DataFrame, bands: list[str])
         pin_memory=True,
     )
 
-    chip_preds = {}
-    for batch in tqdm(test_dataloader, total=len(test_dataloader)):
+    for batch_index, batch in enumerate(test_dataloader):
+        logger.debug(f"Predicting batch {batch_index} of {len(test_dataloader)}")
         x = batch["chip"]
         preds = model.forward(x)
         preds = torch.softmax(preds, dim=1)[:, 1]
         preds = (preds > 0.5).detach().numpy().astype("uint8")
-        chip_preds.update(dict(zip(batch["chip_id"], preds)))
-
-    return chip_preds
-
-
-def save_predictions(chip_preds: dict, predictions_dir: os.PathLike):
-    """
-    Save the predictions provided in chip_preds to predictions_dir.
-
-    Args:
-        chip_preds (dict): Dictionary of predictions where the keys are chip_ids and the values
-            are predicted TIF masks as numpy arrays
-        predictions_dir (os.PathLike): Destination directory to save the predicted TIF masks
-    """
-    for chip_id, chip_pred in tqdm(chip_preds.items()):
-        chip_pred_path = predictions_dir / f"{chip_id}.tif"
-        chip_pred_im = Image.fromarray(chip_pred)
-        chip_pred_im.save(chip_pred_path)
+        for chip_id, pred in zip(batch["chip_id"], preds):
+            chip_pred_path = predictions_dir / f"{chip_id}.tif"
+            chip_pred_im = Image.fromarray(pred)
+            chip_pred_im.save(chip_pred_path)
 
 
 def main(
@@ -121,10 +111,8 @@ def main(
     logger.info(f"Found {len(test_metadata)} chips")
 
     logger.info("Generating predictions in batches")
-    chip_preds = make_predictions(model, test_metadata, bands)
+    make_predictions(model, test_metadata, bands, predictions_dir)
 
-    logger.info(f"Saving predictions to {predictions_dir}")
-    save_predictions(chip_preds, predictions_dir)
     logger.info(f"""Saved {len(list(predictions_dir.glob("*.tif")))} predictions""")
 
 
