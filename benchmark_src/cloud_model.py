@@ -1,13 +1,9 @@
-from typing import Optional
+from typing import Optional, List
 
 import pandas as pd
 import pytorch_lightning as pl
 import segmentation_models_pytorch as smp
 import torch
-from typing import Optional, List
-
-from benchmark_src.cloud_dataset import CloudDataset
-from benchmark_src.losses import intersection_over_union
 
 try:
     from cloud_dataset import CloudDataset
