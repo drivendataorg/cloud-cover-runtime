@@ -6,7 +6,7 @@ from PIL import Image
 import typer
 
 ROOT_DIRECTORY = Path("/codeexecution")
-SUBMISSION_DIRECTORY = ROOT_DIRECTORY / "submission"
+PREDICTIONS_DIRECTORY = ROOT_DIRECTORY / "predictions"
 
 feature_directory = ROOT_DIRECTORY / "data" / "test_features"
 
@@ -20,7 +20,7 @@ def main():
             [np.array(Image.open(image)) for image in chip.glob("*.tif")]
         ).mean(0)
         Image.fromarray((images > images.mean()).astype(np.uint8)).save(
-            SUBMISSION_DIRECTORY / f"{chip.name}.tif"
+            PREDICTIONS_DIRECTORY / f"{chip.name}.tif"
         )
 
 
