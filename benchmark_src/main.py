@@ -109,6 +109,7 @@ def main(
         raise ValueError(
             f"The directory for test feature images must exist and {test_features_dir} does not exist"
         )
+    predictions_dir.mkdir(exist_ok=True, parents=True)
 
     logger.info("Loading model")
     model = CloudModel(bands=bands, hparams={"weights": None})
