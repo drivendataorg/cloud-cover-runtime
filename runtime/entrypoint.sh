@@ -16,7 +16,7 @@ exit_code=0
 
     if [ -f "main.py" ]
     then
-        echo "Running submission with Python"
+        echo "Running code submission with Python"
         conda run --no-capture-output -n condaenv python main.py
     else
         echo "ERROR: Could not find main.py in submission.zip"
@@ -28,10 +28,12 @@ exit_code=0
     conda run -n condaenv pytest -v tests/test_submission.py
 
     echo "Compressing files in a gzipped tar archive for submission"
-    cd ./submission \
+    cd ./predictions \
       && tar czf ./submission.tar.gz *.tif \
       && rm ./*.tif \
       && cd ..
+
+    mv predictions/submission.tar.gz submission
 
     echo "... finished"
     du -h submission/submission.tar.gz

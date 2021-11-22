@@ -2,7 +2,7 @@
 
 ![Python 3.9](https://img.shields.io/badge/Python-3.9-blue) [![GPU Docker Image](https://img.shields.io/badge/Docker%20image-gpu--latest-green)](https://hub.docker.com/r/drivendata/cloud-cover-competition/tags?page=1&name=gpu-latest) [![CPU Docker Image](https://img.shields.io/badge/Docker%20image-cpu--latest-green)](https://hub.docker.com/r/drivendata/cloud-cover-competition/tags?page=1&name=cpu-latest) 
 
-Welcome to the runtime repository for the [TODO: Cloud Cover Challenge](https://www.drivendata.org/competitions/). This repository contains the definition of the environment where your code submissions will run. It specifies both the operating system and the software packages that will be available to your solution.
+Welcome to the runtime repository for the [Cloud Cover Challenge](https://www.drivendata.org/competitions/83/cloud-cover/). This repository contains the definition of the environment where your code submissions will run. It specifies both the operating system and the software packages that will be available to your solution.
 
 <div style="background-color: lightgoldenrodyellow">
 
@@ -16,7 +16,7 @@ This repository has three primary uses for competitors:
 
 - **Example for developing your solutions**: You can find here a [baseline solution](https://github.com/drivendataorg/cloud-cover-runtime/tree/master/benchmark) `main.py` which does not do very much but will run in the runtime environment and outputs a proper submission. You can use this as a guide to bring in your model and generate a submission. You can also find an example implementation of the [PyTorch benchmark](https://github.com/drivendataorg/cloud-cover-runtime/tree/main/benchmark-pytorch) based on the [TODO: benchmark blog post](https://www.drivendata.co/blog/).
 
-- **Testing your code submission**: Test your `submission.zip` file with a locally running version of the container to discover errors before submitting it to the competition site. You can also find an [TODO: evaluation script](https://github.com/drivendataorg/cloud-cover-runtime/blob/main/runtime/scripts/metric.py) for implementing the competition metric.
+- **Testing your code submission**: Test your `submission.zip` file with a locally running version of the container to discover errors before submitting it to the competition site. You can also find an [evaluation script](https://github.com/drivendataorg/cloud-cover-runtime/blob/main/runtime/scripts/metric.py) for implementing the competition metric.
 
 - **Requesting new packages in the official runtime**: It lets you test adding additional packages to the official runtime [CPU](https://github.com/drivendataorg/cloud-cover-runtime/blob/main/runtime/environment-cpu.yml) and [GPU](https://github.com/drivendataorg/cloud-cover-runtime/blob/main/runtime/environment-gpu.yml) environments. The official runtime uses **Python 3.9.6** environments managed by [Anaconda](https://docs.conda.io/en/latest/). You can then submit a PR to request compatible packages be included in the official container image.
 
@@ -28,10 +28,9 @@ This repository has three primary uses for competitors:
 ### [Testing your submission locally](#1-testing-your-submission-locally)
  - [Implement your solution](#implement-your-solution)
  - [Example benchmark submission](#example-benchmark-submission)
- - [Making a submission](#making-a-submission)
+ - [Running your submission](#running-your-submission)
  - [Reviewing the logs](#reviewing-the-logs)
 ### [Updating the runtime packages](#2-updating-the-runtime-packages)
-### [Useful scripts for local testing](#3-useful-scripts-for-local-testing)
 
 ----
 
@@ -57,18 +56,40 @@ To test out the full execution pipeline, run the following commands in order in 
 
 **Note:** On machines with `nvidia-smi` but a CUDA version other than 11, `make` will automatically select the GPU image, which will fail. In this case, you will have to set `CPU_OR_GPU=cpu` manually in the commands, e.g., `CPU_OR_GPU=cpu make pull`, `CPU_OR_GPU=cpu make test-submission`. If you want to try using the GPU image on your machine but you don't have a GPU device that can be recognized, you can use `SKIP_GPU=true` which will invoke `docker` without the `--gpus all` argument.
 
-Download the [TODO: training images](https://www.drivendata.org/competitions/81/detect-flood-water/data/) from the competition and put all the `.tif` files from `training_features` into `runtime/data/test_features` so that you can test locally by pretending your training data is the actual test data expected by the execution environment but which you don't have locally.
+There two ways to "fake" access to the test features:
+- Use the train features: Follow the instructions from the [Data download page](https://www.drivendata.org/competitions/83/cloud-cover/data/) to download the TIF files from `training_features` into `runtime/data/test_features` so that you can test locally by pretending your training data is the actual test data expected by the execution environment but which you don't have locally.
 
 ```bash
-ls runtime/data/test_features/ | head -n 5
-awc00_vh.tif
-awc00_vv.tif
-awc01_vh.tif
-awc01_vv.tif
-awc02_vh.tif
+$ tree runtime/data/test_features | head
+
+├── adwp
+│   ├── B02.tif
+│   ├── B03.tif
+│   ├── B04.tif
+│   └── B08.tif
+├── adwu
+│   ├── B02.tif
+│   ├── B03.tif
+│   ├── B04.tif
 ```
 
-Now we are ready to run the benchmark code:
+- Generate fake data: We have included a script that will generate random images that are the same format as the actual test features. Don't expect to do very well on these!
+
+```bash
+$ python runtime/scripts/generate_fake_inputs.py runtime/data/test_features
+
+$ tree runtime/data/test_features | head
+├── 0000
+│   ├── B02.tif
+│   ├── B03.tif
+│   ├── B04.tif
+│   └── B08.tif
+├── 0001
+│   ├── B02.tif
+│   ├── B03.tif
+│   ├── B04.tif
+```
+Whichever version of the fake data you choose, now you're ready to run the benchmark code:
 
 ```bash
 make pull
@@ -80,79 +101,136 @@ You should see output like this in the end (and find the same logs in the folder
 
 ```
 $ make pack-benchmark
-cd benchmark; zip -r ../submission/submission.zip ./*
-  adding: main.py (deflated 57%)
+cd benchmark_src; zip -r ../submission/submission.zip ./*
+  adding: assets/ (stored 0%)
+  adding: assets/torch/ (stored 0%)
+  adding: assets/torch/hub/ (stored 0%)
+  adding: assets/torch/hub/checkpoints/ (stored 0%)
+  adding: assets/torch/hub/checkpoints/resnet34-333f7ec4.pth (deflated 7%)
+  adding: assets/cloud_model.pt (deflated 8%)
+  adding: cloud_dataset.py (deflated 63%)
+  adding: cloud_model.py (deflated 74%)
+  adding: losses.py (deflated 57%)
+  adding: main.py (deflated 65%)
 
 $ SKIP_GPU=true make test-submission
 chmod -R 0777 submission/
 docker run \
-	-it \
-	 \
-	--network none \
-	--mount type=bind,source="/tmp/cloud-cover-runtime"/runtime/data,target=/codeexecution/data,readonly \
-	--mount type=bind,source="/tmp/cloud-cover-runtime"/runtime/tests,target=/codeexecution/tests,readonly \
-	--mount type=bind,source="/tmp/cloud-cover-runtime"/runtime/entrypoint.sh,target=/codeexecution/entrypoint.sh \
-	--mount type=bind,source="/tmp/cloud-cover-runtime"/submission,target=/codeexecution/submission \
-	--shm-size 8g \
-	eec6a1f567e5
+        -it \
+         \
+        --rm \
+        --name cloud_cover_submission \
+        --mount type=bind,source="/home/robert/projects/cloud-cover-runtime"/runtime/data,target=/codeexecution/data,readonly \
+        --mount type=bind,source="/home/robert/projects/cloud-cover-runtime"/runtime/tests,target=/codeexecution/tests,readonly \
+        --mount type=bind,source="/home/robert/projects/cloud-cover-runtime"/runtime/entrypoint.sh,target=/codeexecution/entrypoint.sh \
+        --mount type=bind,source="/home/robert/projects/cloud-cover-runtime"/submission,target=/codeexecution/submission \
+        --shm-size 8g \
+        5c6354f18833
++ exit_code=0
++ tee /codeexecution/submission/log.txt
 + cd /codeexecution
++ echo 'List installed packages'
+List installed packages
++ echo '######################################'
+######################################
++ conda list -n condaenv
+# packages in environment at /srv/conda/envs/condaenv:
+#
+# Name                    Version                   Build  Channel
+_libgcc_mutex             0.1                 conda_forge    conda-forge
+_openmp_mutex             4.5                      1_llvm    conda-forge
+...
+zlib                      1.2.11            h36c2ea0_1013    conda-forge
+zstd                      1.5.0                ha95c52a_0    conda-forge
++ echo '######################################'
+######################################
 + echo 'Unpacking submission...'
 Unpacking submission...
 + unzip ./submission/submission.zip -d ./
 Archive:  ./submission/submission.zip
-  inflating: ./main.py               
+   creating: ./assets/
+   creating: ./assets/torch/
+   creating: ./assets/torch/hub/
+   creating: ./assets/torch/hub/checkpoints/
+  inflating: ./assets/torch/hub/checkpoints/resnet34-333f7ec4.pth
+  inflating: ./assets/cloud_model.pt
+  inflating: ./cloud_dataset.py
+  inflating: ./cloud_model.py
+  inflating: ./losses.py
+  inflating: ./main.py
 + ls -alh
-total 48K
-drwxr-xr-x 1 appuser appuser 4.0K Aug  3 18:18 .
-drwxr-xr-x 1 root    root    4.0K Aug  3 18:18 ..
-drwxrwxr-x 3 appuser appuser 4.0K Aug  3 17:52 data
--rw-rw-r-- 1 appuser appuser  926 Aug  3 18:14 entrypoint.sh
--rw-rw-r-- 1 appuser appuser 2.3K Aug  3 17:42 main.py
-drwxr-xr-x 2 appuser appuser 4.0K Jul 31 20:01 scripts
-drwxrwxrwx 2 appuser appuser  20K Aug  3 18:13 submission
-drwxrwxr-x 3 appuser appuser 4.0K Aug  3 17:59 tests
+total 56K
+drwxr-xr-x 1 appuser appuser 4.0K Nov 18 19:12 .
+drwxr-xr-x 1 root    root    4.0K Nov 18 19:12 ..
+drwxrwxr-x 3 appuser appuser 4.0K Nov 18 18:39 assets
+-rw-rw-r-- 1 appuser appuser 2.4K Nov 18 17:33 cloud_dataset.py
+-rw-rw-r-- 1 appuser appuser 6.9K Nov 18 18:03 cloud_model.py
+drwxrwxr-x 4 appuser appuser 4.0K Nov 18 17:55 data
+-rw-rw-r-- 1 appuser appuser 1.1K Oct  8 19:58 entrypoint.sh
+-rw-rw-r-- 1 appuser appuser  699 Nov 18 17:34 losses.py
+-rw-rw-r-- 1 appuser appuser 4.7K Nov 18 18:38 main.py
+drwxr-xr-x 2 appuser appuser 4.0K Nov 17 21:38 scripts
+drwxrwxrwx 2 appuser appuser 4.0K Nov 18 19:12 submission
+drwxrwxr-x 2 appuser appuser 4.0K Nov 18 18:25 tests
 + '[' -f main.py ']'
 + echo 'Running submission with Python'
 Running submission with Python
 + conda run --no-capture-output -n condaenv python main.py
-2021-08-03 18:18:15.302 | INFO     | __main__:main:50 - found 542 expected image ids; generating predictions for each ...
-
-  0%|          | 0/542 [00:00<?, ?it/s]
-  5%|▍         | 25/542 [00:00<00:08, 61.74it/s]
-  9%|▉         | 50/542 [00:01<00:11, 42.44it/s]
- 14%|█▍        | 75/542 [00:01<00:12, 36.70it/s]
- <... snip ...>
- 92%|█████████▏| 500/542 [00:15<00:01, 35.03it/s]
- 97%|█████████▋| 525/542 [00:17<00:00, 20.64it/s]
-100%|██████████| 542/542 [00:20<00:00, 26.82it/s]
-2021-08-03 18:18:35.529 | SUCCESS  | __main__:main:57 - ... done
+/srv/conda/envs/condaenv/lib/python3.9/site-packages/pretrainedmodels/models/dpn.py:255: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  if block_type is 'proj':
+/srv/conda/envs/condaenv/lib/python3.9/site-packages/pretrainedmodels/models/dpn.py:258: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  elif block_type is 'down':
+/srv/conda/envs/condaenv/lib/python3.9/site-packages/pretrainedmodels/models/dpn.py:262: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  assert block_type is 'normal'
+2021-11-18 19:12:40.810 | INFO     | __main__:main:111 - Loading model
+2021-11-18 19:12:41.307 | INFO     | __main__:main:115 - Loading test metadata
+2021-11-18 19:12:41.313 | INFO     | __main__:main:119 - Found 10 chips
+2021-11-18 19:12:41.314 | INFO     | __main__:main:121 - Generating predictions in batches
+  0%|          | 0/1 [00:00<?, ?it/s]/srv/conda/envs/condaenv/lib/python3.9/site-packages/rasterio/__init__.py:220: NotGeoreferencedWarning: Dataset has no geotransform, gcps, or rpcs. The identity matrix be returned.
+  s = DatasetReader(path, driver=driver, sharing=sharing, **kwargs)
+100%|██████████| 1/1 [00:08<00:00,  8.81s/it]
+2021-11-18 19:12:50.137 | INFO     | __main__:main:124 - Saving predictions to /codeexecution/submission
+100%|██████████| 10/10 [00:00<00:00, 169.59it/s]
+2021-11-18 19:12:50.197 | INFO     | __main__:main:126 - Saved 10 predictions
 + echo 'Testing that submission is valid'
 Testing that submission is valid
 + conda run -n condaenv pytest -v tests/test_submission.py
 ============================= test session starts ==============================
-platform linux -- Python 3.8.10, pytest-6.2.4, py-1.10.0, pluggy-0.13.1 -- /srv/conda/envs/condaenv/bin/python
+platform linux -- Python 3.9.7, pytest-6.2.4, py-1.11.0, pluggy-0.13.1 -- /srv/conda/envs/condaenv/bin/python
 cachedir: .pytest_cache
 rootdir: /codeexecution
-plugins: anyio-3.3.0
 collecting ... collected 3 items
 
 tests/test_submission.py::test_all_files_in_format_have_corresponding_submission_file PASSED [ 33%]
 tests/test_submission.py::test_no_unexpected_tif_files_in_submission PASSED [ 66%]
 tests/test_submission.py::test_file_sizes_are_within_limit PASSED        [100%]
 
-============================== 3 passed in 17.07s ==============================
+=============================== warnings summary ===============================
+../srv/conda/envs/condaenv/lib/python3.9/site-packages/skimage/data/__init__.py:111: 29 warnings
+  /srv/conda/envs/condaenv/lib/python3.9/site-packages/skimage/data/__init__.py:111: DeprecationWarning:
+      Importing file_hash from pooch.utils is DEPRECATED. Please import from the
+      top-level namespace (`from pooch import file_hash`) instead, which is fully
+      backwards compatible with pooch >= 0.1.
+
+    return file_hash(path) == expected_hash
+
+-- Docs: https://docs.pytest.org/en/stable/warnings.html
+======================== 3 passed, 29 warnings in 1.14s ========================
 
 + echo 'Compressing files in a gzipped tar archive for submission'
 Compressing files in a gzipped tar archive for submission
 + cd ./submission
-+ tar czf ./submisson.tar.gz *.tif
++ tar czf ./submission.tar.gz 0000.tif 0001.tif 0002.tif 0003.tif 0004.tif 0005.tif 0006.tif 0007.tif 0008.tif 0009.tif
++ rm ./0000.tif ./0001.tif ./0002.tif ./0003.tif ./0004.tif ./0005.tif ./0006.tif ./0007.tif ./0008.tif ./0009.tif
 + cd ..
 + echo '... finished'
 ... finished
-+ du -h submission/submisson.tar.gz
-620K	submission/submisson.tar.gz
++ du -h submission/submission.tar.gz
+376K    submission/submission.tar.gz
 + echo '================ END ================'
 ================ END ================
++ cp /codeexecution/submission/log.txt /tmp/log
++ exit 0
 ```
 
 ## (1) Testing your submission locally
@@ -164,11 +242,42 @@ In Docker parlance, your computer is the "host" that runs the container. The con
  - the `data` directory on the host machine is mounted in the container as a read-only directory `/codeexecution/data`
  - the `submission` directory on the host machine is mounted in the container as `/codeexecution/submission`
 
-When you make a submission, the code execution platform will unzip your submission assets to the `/codeexecution` folder. This must result in a `main.py` in the top level `/codeexecution` working directory. (Hint: make sure your `main.py` is compressed at the top level of your `tar`'ed submission and not nested into a directory.)
+When you make a code submission, the code execution platform will unzip your submission assets to the `/codeexecution` folder. This must result in a `main.py` in the top level `/codeexecution` working directory. (Hint: make sure your `main.py` is compressed at the top level of your `tar`'ed submission and not nested into a directory.)
 
-On the official code execution platform, we will take care of mounting the data―you can assume your submission will have access to `/codeexecution/data/test_features`. You are responsible for creating the submission script that will read from `/codeexecution/data` and write out `.tif`s to `/codeexecution/submission/`. Once your code finishes, some sanity checking tests run and then the script will zip up all the `.tif`s into an archive to be scored on the platform side.
+On the official code execution platform, we will take care of mounting the data―you can assume your submission will have access to `/codeexecution/data/test_features`. You are responsible for creating the submission script that will read from `/codeexecution/data` and write out `.tif`s to `/codeexecution/predictions`. Once your code finishes, some sanity checking tests run and then the script will zip up all the `.tif`s into an archive to be scored on the platform side.
 
-There is one important difference between your local test runtime and the official code execution runtime: `make test-submission` does not impose the same network restrictions that are in place in the real competition runtime. That means some web requests that will work in the local test runtime will fail in competition runtime. You'll need to make sure that your code only makes requests to allowed web resources, such as the Planetary Computer STAC API. (You _are_ permitted to write intermediate files to `/codeexecution/submission`, but if they are `.tif` files you will want to clean them up before your script finishes so they aren't considered part of your submission.)
+For reference, here is the relevant directory structure inside the container. **Your `main.py` should read from `/codeexecution/data/test_features` and write to `/codeexecution/predictions` in order to generate a valid submission.**:
+
+```sh
+$ tree /codeexecution
+.
+├── data
+│   └── test_features  <-- read chips from this directory
+│       ├── aaaa  <-- your code makes predictions for each chip, e.g., aaaa, ..., zzzz
+│       │   ├── B02.tif
+│       │   ├── B03.tif
+│       │   ├── B04.tif
+│       │   └── B08.tif
+│       ├── ...
+│       └── zzzz
+│           ├── B02.tif
+│           ├── B03.tif
+│           ├── B04.tif
+│           └── B08.tif
+├── main.py  <-- your code submission main.py and any additional assets
+├── my_model.py  <-- additional assets from your submission.zip
+├── ...  <-- additional assets from your submission.zip
+├── predictions  <-- write your predictions to this directory
+│   ├── aaaa.tif  <-- your predicted cloud cover masks
+│   ├── ...
+│   └── zzzz.tif
+└── submission
+    └── log.txt  <-- log messages emitted while running your code
+```
+
+There is one important difference between your local test runtime and the official code execution runtime. **In the real competition runtime, all internet access is blocked except to the Planetary Computer STAC API.** `make test-submission` does not impose the same network restrictions. Any web requests outside of the Planetery Computer STAC API will work in the local test runtime, but fail in the actual competition runtime. It's up to you to make sure that your code only makes requests to the Planetary Computer API and no other web resources.
+
+If you are not making calls to the Planetary Computer API, you can test your submission _without_ internet access by running `BLOCK_INTERNET=true make test-submission`.
 
 ### Implement your solution
 
@@ -176,7 +285,7 @@ In order to test your code submission, you will need a code submission! Implemen
 
 **Note: You will implement all of your training and experiments on your machine. It is highly recommended that you use the same package versions that are in the runtime conda environments ([Python (CPU)](runtime/environment-cpu.yml), [Python (GPU)](runtime/environment-gpu.yml). If you don't wish to use Docker these exact packages can be installed with `conda`.**
 
-The [submission format page](https://www.drivendata.org/competitions/81/detect-flood-water/page/389/) contains the detailed information you need to prepare your code submission.
+The [submission format page](https://www.drivendata.org/competitions/83/cloud-cover/page/412/) contains the detailed information you need to prepare your code submission.
 
 ### Example benchmark submission
 
@@ -204,28 +313,24 @@ We have included a [metric script](https://github.com/drivendataorg/cloud-cover-
 
 ```bash
 # unzip your submission so the .tifs are actually around then come back up to the project root
-cd submission && tar xvf submission.tar.gz && cd ..
+$ cd submission && tar xvf submission.tar.gz && cd ..
 
 # show usage instructions
-python runtime/scripts/metric.py --help
-#    Usage: metric.py [OPTIONS] SUBMISSION_DIR ACTUAL_DIR
-#    
-#      Given a directory with the predicted mask files (all values in {0, 1}) and
-#      the actual mask files (all values in {0, 1, 255}), get the overall
-#      intersection-over-union score
-#    
-#    Arguments:
-#      SUBMISSION_DIR  [required]
-#      ACTUAL_DIR      [required]
+$ python runtime/scripts/metric.py --help
+Usage: metric.py [OPTIONS] SUBMISSION_DIR ACTUAL_DIR
 
-python runtime/scripts/metric.py submission runtime/data/test_labels
-# 2021-11-04 17:13:27.669 | INFO     | __main__:main:53 - calculating score for 10 image pairs ...
-# 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [00:00<00:00, 644.43it/s]
-# 2021-11-04 17:13:27.687 | SUCCESS  | __main__:main:55 - overall score: 0.6863734581490337
-# (condaenv) ➜  cloud-cover-runtime git:(main) ✗ python runtime/scripts/metric.py submission runtime/data/test_labels
-# 2021-11-04 17:14:10.983 | INFO     | __main__:main:53 - calculating score for 10 image pairs ...
-# 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [00:00<00:00, 617.95it/s]
-# 2021-11-04 17:14:11.002 | SUCCESS  | __main__:main:55 - overall score: 0.6863734581490337
+  Given a directory with the predicted mask files (all values in {0, 1}) and
+  the actual mask files (all values in {0, 1}), get the overall
+  intersection-over-union score
+
+Arguments:
+  SUBMISSION_DIR  [required]
+  ACTUAL_DIR      [required]
+
+$ python runtime/scripts/metric.py submission runtime/data/test_labels
+2021-11-18 14:17:19.934 | INFO     | __main__:main:44 - calculating score for 10 image pairs ...
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [00:00<00:00, 723.88it/s]
+2021-11-18 14:17:19.950 | SUCCESS  | __main__:main:46 - overall score: 0.2673616412947126
 ```
 
 ### Reviewing the logs
