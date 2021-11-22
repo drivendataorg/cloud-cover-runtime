@@ -275,7 +275,9 @@ $ tree /codeexecution
     └── log.txt  <-- log messages emitted while running your code
 ```
 
-There is one important difference between your local test runtime and the official code execution runtime: `make test-submission` does not impose the same network restrictions that are in place in the real competition runtime, which is to block all internet access except to the Planetary Computer STAC API. By default, `make test-submission` will allow all internet access, which  means some web requests that will work in the local test runtime will fail in competition runtime. You can test your submission _without_ internet access by running `BLOCK_INTERNET=true make test-submission`, but then calls to the Planetary Computer STAC API will fail locally. It's up to you to make sure that your code only makes requests to allowed web resources, such as the Planetary Computer STAC API.
+There is one important difference between your local test runtime and the official code execution runtime. **In the real competition runtime, all internet access is blocked except to the Planetary Computer STAC API.** `make test-submission` does not impose the same network restrictions. Any web requests outside of the Planetery Computer STAC API will work in the local test runtime, but fail in the actual competition runtime. It's up to you to make sure that your code only makes requests to the Planetary Computer API and no other web resources.
+
+If you are not making calls to the Planetary Computer API, you can test your submission _without_ internet access by running `BLOCK_INTERNET=true make test-submission`.
 
 ### Implement your solution
 
