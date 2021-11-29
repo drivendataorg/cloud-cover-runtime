@@ -113,7 +113,7 @@ def main(
     predictions_dir.mkdir(exist_ok=True, parents=True)
 
     logger.info("Loading model")
-    model = CloudModel(bands=bands, hparams={"weights": None})
+    model = CloudModel(bands=bands, hparams={"weights": None, "batch_size": 1})
     model.load_state_dict(torch.load(model_weights_path))
 
     logger.info("Loading test metadata")
