@@ -1,53 +1,54 @@
 from pathlib import Path
 
-from skimage.io import imread
+from PIL import Image
+import numpy as np
 
-SUBMISSION_DIR = Path("submission")
-INPUT_IMAGES_DIR = Path("data/test_features")
+SUBMISSION_DIR = Path("predictions")
+TEST_DIR = Path("data/test_features")
 MAX_FILE_SIZE = 512 * 512 * 2  # 2x fudge factor over one byte (uint8) per pixel
+EXPECTED_SHAPE = 512, 512
+EXPECTED_VALUES = set((0, 1))
 
-submission_paths = sorted(SUBMISSION_DIR.glob("*.tif"))
-
-
-def get_expected_chip_ids():
-    """
-    Use the submission format directory to see which images are expected
-    """
-    paths = INPUT_IMAGES_DIR.glob("*.tif")
-    # images are named something like abc12.tif, we only want the abc12 part
-    ids = list(sorted(set(path.stem.split("_", 1)[0] for path in paths)))
-    return ids
+image_names = set(
+    path.stem for path in TEST_DIR.glob("*") if not path.name.startswith(".")
+)
+submission_names = set(path.stem for path in SUBMISSION_DIR.glob("*.tif"))
 
 
-def test_all_files_in_format_have_corresponding_submission_file():
-    for chip_id in get_expected_chip_ids():
-        filename = f"{chip_id}.tif"
-        submission_path = SUBMISSION_DIR / filename
-        assert submission_path.exists(), f"File {filename} missing from your submission"
+def test_no_missing_files():
+    missing_paths = image_names - submission_names
 
-        input_path = INPUT_IMAGES_DIR / f"{chip_id}"
-        input_arr = imread(input_path)
-        output_arr = imread(submission_path)
-        expected_shape = input_arr.shape
+    assert (
+        len(missing_paths) == 0
+    ), f"""Submission is missing predictions for the following file(s)\n{", ".join(missing_paths)}"""
+
+
+def test_no_extra_files():
+    extra_paths = submission_names - image_names
+
+    assert (
+        len(extra_paths) == 0
+    ), f"""Submission includes extra predictions for the following file(s)\n{", ".join(extra_paths)}"""
+
+
+def test_valid_values():
+    for submission_name in submission_names:
+        submission = np.array(Image.open(SUBMISSION_DIR / f"{submission_name}.tif"))
         assert (
-            output_arr.shape == expected_shape
-        ), f"{filename} shape={output_arr.shape}, expected {expected_shape}"
+            submission.shape == EXPECTED_SHAPE
+        ), f"{submission_name} shape={submission.shape}, expected {EXPECTED_SHAPE}"
 
-        mask = (output_arr == 0) | (output_arr == 1)
-        assert mask.ravel().all(), "All values in file must be either 0 or 1"
-
-
-def test_no_unexpected_tif_files_in_submission():
-    for submission_path in submission_paths:
-        break
-        filename = submission_path.name
-        chip_id = filename.split(".")[0]
-        input_path = INPUT_IMAGES_DIR / f"{chip_id}"
-        assert input_path.exists(), f"Found unexpected file {filename} in submission"
+        extra_values = set(np.unique(submission)) - EXPECTED_VALUES
+        assert (
+            len(extra_values) == 0
+        ), f"""Invalid value(s) {", ".join(str(value) for value in extra_values)} present in {submission_name}.tif. """
+        f"""Valid values are {", ".join(EXPECTED_VALUES)}"""
 
 
 def test_file_sizes_are_within_limit():
-    for submission_path in submission_paths:
-        size_bytes = submission_path.stat().st_size
-        err_msg = f"{submission_path} is {size_bytes:,} bytes; over limit of {MAX_FILE_SIZE:,} bytes"
+    for name in submission_names:
+        size_bytes = (SUBMISSION_DIR / f"{name}.tif").stat().st_size
+        err_msg = (
+            f"{name} is {size_bytes:,} bytes; over limit of {MAX_FILE_SIZE:,} bytes"
+        )
         assert size_bytes <= MAX_FILE_SIZE, err_msg
