@@ -290,7 +290,7 @@ cp -R ~/.cache/torch submission_src/assets/
 zip -r submission.zip submission_src
 ```
 
-When the platform runs your code, it will extract `assets` to `/codeexecution/assets`. You'll need to tell PyTorch to use your custom cache directory instead of `~/.cache/torch`.
+When the platform runs your code, it will extract `assets` to `/codeexecution/assets`. You'll need to tell PyTorch to use your custom cache directory instead of `~/.cache/torch` by setting the `TORCH_HOME` environment variable in your Python code (in `main.py` for example).
 
 ```python
 import os
