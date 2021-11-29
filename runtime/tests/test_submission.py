@@ -48,7 +48,4 @@ def test_valid_values():
 def test_file_sizes_are_within_limit():
     for name in submission_names:
         size_bytes = (SUBMISSION_DIR / f"{name}.tif").stat().st_size
-        err_msg = (
-            f"{name} is {size_bytes:,} bytes; over limit of {MAX_FILE_SIZE:,} bytes"
-        )
-        assert size_bytes <= MAX_FILE_SIZE, err_msg
+        assert size_bytes <= MAX_FILE_SIZE, f"{name} is {size_bytes:,} bytes; over limit of {MAX_FILE_SIZE:,} bytes"
