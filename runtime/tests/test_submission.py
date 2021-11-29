@@ -42,7 +42,7 @@ def test_valid_values():
         assert (
             len(extra_values) == 0
         ), f"""Invalid value(s) {", ".join(str(value) for value in extra_values)} present in {submission_name}.tif. """
-        f"""Valid values are {", ".join(EXPECTED_VALUES)}"""
+        f"""Valid values are {", ".join(str(value) for value in EXPECTED_VALUES)}"""
 
 
 def test_file_sizes_are_within_limit():
