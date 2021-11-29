@@ -22,8 +22,8 @@ ASSETS_DIRECTORY = ROOT_DIRECTORY / "assets"
 DATA_DIRECTORY = ROOT_DIRECTORY / "data"
 INPUT_IMAGES_DIRECTORY = DATA_DIRECTORY / "test_features"
 
-os.environ["TORCH_HOME"] = str(ASSETS_DIRECTORY / "torch")
-
+# Make sure the smp loader can find our torch assets because we don't have internet!
+os.environ["TORCH_HOME"] = str(ASSETS_DIRECTORY / "assets/torch")
 
 def get_metadata(features_dir: os.PathLike, bands: List[str]):
     """

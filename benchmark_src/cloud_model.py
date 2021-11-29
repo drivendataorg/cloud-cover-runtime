@@ -108,10 +108,8 @@ class CloudModel(pl.LightningModule):
         # Forward pass
         preds = self.forward(x)
 
-        # Calculate training loss
+        # Log batch loss
         loss = torch.nn.CrossEntropyLoss(reduction="none")(preds, y).mean()
-
-        # Log batch xe_dice_loss
         self.log(
             "loss",
             loss,
