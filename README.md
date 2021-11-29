@@ -278,9 +278,7 @@ There is one important difference between your local test runtime and the offici
 
 If you are not making calls to the Planetary Computer API, you can test your submission _without_ internet access by running `BLOCK_INTERNET=true make test-submission`.
 
-#### A note for models that download pre-trained weights from the internet
-
-It is common for models to download some of their weights from the internet. Since submissions do not have open access to the internet, you will need to include all weights along with your `submission.zip` and make sure that your code loads them from disk and does not try to download them from the internet. For example, PyTorch uses a local cache which by default is saved to `~/.cache/torch`.
+**A note for models that download pre-trained weights from the internet**: It is common for models to download some of their weights from the internet. Since submissions do not have open access to the internet, you will need to include all weights along with your `submission.zip` and make sure that your code loads them from disk and does not try to download them from the internet. For example, PyTorch uses a local cache which by default is saved to `~/.cache/torch`.
 
 ```sh
 # Copy your local pytorch cache into submission_src/assets
