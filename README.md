@@ -59,35 +59,34 @@ To test out the full execution pipeline, run the following commands in order in 
 There two ways to "fake" access to the test features:
 - Use the train features: Follow the instructions from the [Data download page](https://www.drivendata.org/competitions/83/cloud-cover/data/) to download the TIF files from `training_features` into `runtime/data/test_features` so that you can test locally by pretending your training data is the actual test data expected by the execution environment but which you don't have locally.
 
-```bash
+```sh
 $ tree runtime/data/test_features | head
-
 ├── adwp
-│   ├── B02.tif
-│   ├── B03.tif
-│   ├── B04.tif
-│   └── B08.tif
+│   ├── B02.tif
+│   ├── B03.tif
+│   ├── B04.tif
+│   └── B08.tif
 ├── adwu
-│   ├── B02.tif
-│   ├── B03.tif
-│   ├── B04.tif
+│   ├── B02.tif
+│   ├── B03.tif
+│   ├── B04.tif
 ```
 
 - Generate fake data: We have included a script that will generate random images that are the same format as the actual test features. Don't expect to do very well on these!
 
-```bash
+```sh
 $ python runtime/scripts/generate_fake_inputs.py runtime/data/test_features
 
 $ tree runtime/data/test_features | head
 ├── 0000
-│   ├── B02.tif
-│   ├── B03.tif
-│   ├── B04.tif
-│   └── B08.tif
+│   ├── B02.tif
+│   ├── B03.tif
+│   ├── B04.tif
+│   └── B08.tif
 ├── 0001
-│   ├── B02.tif
-│   ├── B03.tif
-│   ├── B04.tif
+│   ├── B02.tif
+│   ├── B03.tif
+│   ├── B04.tif
 ```
 Whichever version of the fake data you choose, now you're ready to run the benchmark code:
 
@@ -248,7 +247,7 @@ On the official code execution platform, we will take care of mounting the data�
 
 For reference, here is the relevant directory structure inside the container. **Your `main.py` should read from `/codeexecution/data/test_features` and write to `/codeexecution/predictions` in order to generate a valid submission.**
 
-```sh
+```
 $ tree /codeexecution
 .
 ├── data
