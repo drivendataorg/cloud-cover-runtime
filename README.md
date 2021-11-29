@@ -297,7 +297,7 @@ import os
 os.environ["TORCH_HOME"] = "/codeexecution/assets/torch"
 ```
 
-Now PyTorch will be able to load the model weights from the local cache, and your submission will run correctly in the code execution environment.
+Now PyTorch will load the model weights from the local cache, and your submission will run correctly in the code execution environment.
 
 
 ### Implement your solution
