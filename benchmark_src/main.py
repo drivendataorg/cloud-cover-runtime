@@ -25,6 +25,7 @@ INPUT_IMAGES_DIRECTORY = DATA_DIRECTORY / "test_features"
 # Make sure the smp loader can find our torch assets because we don't have internet!
 os.environ["TORCH_HOME"] = str(ASSETS_DIRECTORY / "assets/torch")
 
+
 def get_metadata(features_dir: os.PathLike, bands: List[str]):
     """
     Given a folder of feature data, return a dataframe where the index is the chip id
@@ -50,7 +51,7 @@ def get_metadata(features_dir: os.PathLike, bands: List[str]):
 def make_predictions(
     model: CloudModel,
     x_paths: pd.DataFrame,
-    bands: list[str],
+    bands: List[str],
     predictions_dir: os.PathLike,
 ):
     """Predicts cloud cover and saves results to the predictions directory.
