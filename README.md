@@ -246,7 +246,7 @@ When you make a code submission, the code execution platform will unzip your sub
 
 On the official code execution platform, we will take care of mounting the data―you can assume your submission will have access to `/codeexecution/data/test_features`. You are responsible for creating the submission script that will read from `/codeexecution/data` and write out `.tif`s to `/codeexecution/predictions`. Once your code finishes, some sanity checking tests run and then the script will zip up all the `.tif`s into an archive to be scored on the platform side.
 
-For reference, here is the relevant directory structure inside the container. **Your `main.py` should read from `/codeexecution/data/test_features` and write to `/codeexecution/predictions` in order to generate a valid submission.**:
+For reference, here is the relevant directory structure inside the container. **Your `main.py` should read from `/codeexecution/data/test_features` and write to `/codeexecution/predictions` in order to generate a valid submission.**
 
 ```sh
 $ tree /codeexecution
@@ -278,6 +278,28 @@ $ tree /codeexecution
 There is one important difference between your local test runtime and the official code execution runtime. **In the real competition runtime, all internet access is blocked except to the Planetary Computer STAC API.** `make test-submission` does not impose the same network restrictions. Any web requests outside of the Planetery Computer STAC API will work in the local test runtime, but fail in the actual competition runtime. It's up to you to make sure that your code only makes requests to the Planetary Computer API and no other web resources.
 
 If you are not making calls to the Planetary Computer API, you can test your submission _without_ internet access by running `BLOCK_INTERNET=true make test-submission`.
+
+#### A note for models that download pre-trained weights from the internet
+
+It is common for models to download some of their weights from the internet. Since submissions do not have open access to the internet, you will need to include all weights along with your `submission.zip` and make sure that your code loads them from disk and does not try to download them from the internet. For example, PyTorch uses a local cache which by default is saved to `~/.cache/torch`.
+
+```sh
+# Copy your local pytorch cache into submission_src/assets
+cp -R ~/.cache/torch submission_src/assets/
+
+# Zip it all up in your submission.zip
+zip -r submission.zip submission_src
+```
+
+When the platform runs your code, it will extract `assets` to `/codeexecution/assets`. You'll need to tell PyTorch to use your custom cache directory instead of `~/.cache/torch`.
+
+```python
+import os
+os.environ["TORCH_HOME"] = "/codeexecution/assets/torch"
+```
+
+Now PyTorch will be able to load the model weights from the local cache, and your submission will run correctly in the code execution environment.
+
 
 ### Implement your solution
 
