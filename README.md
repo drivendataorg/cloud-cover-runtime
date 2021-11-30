@@ -16,9 +16,9 @@ This repository has three primary uses for competitors:
 
 - **Example for developing your solutions**: You can find two examples to help you develop your solution. The first is a [baseline solution](https://github.com/drivendataorg/cloud-cover-runtime/tree/main/submission_src) which does not do very much but will run in the runtime environment and outputs a proper submission. You can use this as a guide to bring in your model and generate a submission. The second is an implementation of the [PyTorch benchmark](https://github.com/drivendataorg/cloud-cover-runtime/tree/main/benchmark_src) based on the [TODO: benchmark blog post](https://www.drivendata.co/blog/).
 
-- **Testing your code submission**: Test your `submission.zip` file with a locally running version of the container to discover errors before submitting it to the competition site. You can also find an [evaluation script](https://github.com/drivendataorg/cloud-cover-runtime/blob/main/runtime/scripts/metric.py) for implementing the competition metric.
+- **Test your code submission**: Test your `submission.zip` file with a locally running version of the container to discover errors before submitting it to the competition site. You can also find an [evaluation script](https://github.com/drivendataorg/cloud-cover-runtime/blob/main/runtime/scripts/metric.py) for implementing the competition metric.
 
-- **Requesting new packages in the official runtime**: It lets you test adding additional packages to the official runtime [CPU](https://github.com/drivendataorg/cloud-cover-runtime/blob/main/runtime/environment-cpu.yml) and [GPU](https://github.com/drivendataorg/cloud-cover-runtime/blob/main/runtime/environment-gpu.yml) environments. The official runtime uses **Python 3.9.6** environments managed by [Anaconda](https://docs.conda.io/en/latest/). You can then submit a PR to request compatible packages be included in the official container image.
+- **Request new packages in the official runtime**: It lets you test adding additional packages to the official runtime [CPU](https://github.com/drivendataorg/cloud-cover-runtime/blob/main/runtime/environment-cpu.yml) and [GPU](https://github.com/drivendataorg/cloud-cover-runtime/blob/main/runtime/environment-gpu.yml) environments. The official runtime uses **Python 3.9.6** environments managed by [Anaconda](https://docs.conda.io/en/latest/). You can then submit a PR to request compatible packages be included in the official container image.
 
  ----
 
@@ -38,12 +38,10 @@ This repository has three primary uses for competitors:
 
 ### Prerequisites
 
-Make sure you have the prerequisites installed.
-
  - A clone or fork of this repository
  - [Docker](https://docs.docker.com/get-docker/)
  - At least ~12 GB of free space for both the training images and the Docker container images
- - [GNU make](https://www.gnu.org/software/make/) (optional, but useful for using the commands in the Makefile)
+ - [GNU make](https://www.gnu.org/software/make/) (optional, but useful for running the commands in the Makefile)
 
 Additional requirements to run with GPU:
 
@@ -52,17 +50,19 @@ Additional requirements to run with GPU:
 
 ### Quickstart
 
-To test out the full execution pipeline, run the following commands in order in the terminal. These will get the Docker images, zip up an example submission script, and run the submission on your locally running version of the container.  The `make` commands will try to select the CPU or GPU image automatically by setting the `CPU_OR_GPU` variable based on whether `make` detects `nvidia-smi`.
+This section explains how to test out the full execution pipeline, including how to get the Docker images, zip up an example submission, and run the submission on a local version of the container.  The `make` commands will try to select the CPU or GPU image automatically by setting the `CPU_OR_GPU` variable based on whether `make` detects `nvidia-smi`.
 
 **Note:** On machines with `nvidia-smi` but a CUDA version other than 11, `make` will automatically select the GPU image, which will fail. In this case, you will have to set `CPU_OR_GPU=cpu` manually in the commands, e.g., `CPU_OR_GPU=cpu make pull`, `CPU_OR_GPU=cpu make test-submission`. If you want to try using the GPU image on your machine but you don't have a GPU device that can be recognized, you can use `SKIP_GPU=true` which will invoke `docker` without the `--gpus all` argument.
 
-There two ways to "fake" access to the test features:
-- Use the train data: Follow the instructions from the [Data download page](https://www.drivendata.org/competitions/83/cloud-cover/data/) to download the TIF files from `training_features` into `runtime/data/test_features` and metadata CSV from `training_metadata.csv` into `runtime/data/test_metadata.csv` so that you can test locally by pretending your training data is the actual test data expected by the execution environment but which you don't have locally.
+### Fake test data
+
+First you will need some data for your submission to run on. Since we do not give direct access to the test data, you'll need to fake the data in one of two ways:
+
+- Use the train data: On the [Data download page](https://www.drivendata.org/competitions/83/cloud-cover/data/) you'll find instructions on how to download the training data (`data_download_instructions.txt`). Move the TIF images from `train_features` into `runtime/data/test_features`. Also download `train_metadata.csv` to `runtime/data/test_metadata.csv`. Now you should be able to test your submission locally by pretending your training data is the test data expected by the execution environment.
 
 ```sh
 $ tree runtime/data
 ├── test_features
-│   ├── 0000
 │	├── adwp
 │	│   ├── B02.tif
 │	│   ├── B03.tif
@@ -77,7 +77,7 @@ $ tree runtime/data
 └── test_metadata.csv
 ```
 
-- Generate fake data: We have included a script that will generate random images that are the same format as the actual test features. Don't expect to do very well on these!
+- Generate fake data: We have included a script that will generate random images and metadata that are the same format as the actual test data. Don't expect to do very well on these!
 
 ```sh
 $ python runtime/scripts/generate_fake_inputs.py runtime/data
@@ -249,9 +249,9 @@ In Docker parlance, your computer is the "host" that runs the container. The con
  - the `data` directory on the host machine is mounted in the container as a read-only directory `/codeexecution/data`
  - the `submission` directory on the host machine is mounted in the container as `/codeexecution/submission`
 
-When you make a code submission, the code execution platform will unzip your submission assets to the `/codeexecution` folder. This must result in a `main.py` in the top level `/codeexecution` working directory. (Hint: make sure your `main.py` is compressed at the top level of your `tar`'ed submission and not nested into a directory.)
+When you make a code submission, the code execution platform will unzip your submission assets to the `/codeexecution` folder. This must result in a `main.py` in the top level `/codeexecution` working directory. (Important: make sure your `main.py` is included at the top level of your zipped submission and not in a directory.)
 
-On the official code execution platform, we will take care of mounting the data―you can assume your submission will have access to `/codeexecution/data/test_features`. You are responsible for creating the submission script that will read from `/codeexecution/data` and write out `.tif`s to `/codeexecution/predictions`. Once your code finishes, some sanity checking tests run and then the script will zip up all the `.tif`s into an archive to be scored on the platform side.
+On the official code execution platform, we will take care of mounting the data―you can assume your submission will have access to `/codeexecution/data/test_features` and `/codeexecution/data/test_metadata.csv`. You are responsible for creating the submission script that will read from `/codeexecution/data` and write out `.tif`s to `/codeexecution/predictions`. Once your code finishes, we run some validation tests on your predictions and then the script will compress all the `.tif`s into a tar archive to be sent to the platform for scoring.
 
 For reference, here is the relevant directory structure inside the container. **Your `main.py` should read from `/codeexecution/data/test_features` and write to `/codeexecution/predictions` in order to generate a valid submission.**
 
@@ -259,18 +259,19 @@ For reference, here is the relevant directory structure inside the container. **
 $ tree /codeexecution
 .
 ├── data
-│   └── test_features  <-- read chips from this directory
-│       ├── aaaa  <-- your code makes predictions for each chip, e.g., aaaa, ..., zzzz
-│       │   ├── B02.tif
-│       │   ├── B03.tif
-│       │   ├── B04.tif
-│       │   └── B08.tif
-│       ├── ...
-│       └── zzzz
-│           ├── B02.tif
-│           ├── B03.tif
-│           ├── B04.tif
-│           └── B08.tif
+│   ├── test_features  <-- read chips from this directory
+│   │   ├── aaaa  <-- your code makes predictions for each chip, e.g., aaaa, ..., zzzz
+│   │   │   ├── B02.tif
+│   │   │   ├── B03.tif
+│   │   │   ├── B04.tif
+│   │   │   └── B08.tif
+│   │   ├── ...
+│   │   └── zzzz
+│   │       ├── B02.tif
+│   │       ├── B03.tif
+│   │       ├── B04.tif
+│   │       └── B08.tif
+│   └── test_metadata.csv
 ├── main.py  <-- your code submission main.py and any additional assets
 ├── my_model.py  <-- additional assets from your submission.zip
 ├── ...  <-- additional assets from your submission.zip
@@ -316,11 +317,11 @@ The [submission format page](https://www.drivendata.org/competitions/83/cloud-co
 
 ### Example benchmark submission
 
-We wrote a benchmark in Python to serve as a concrete example of a submission. Use `make pack-benchmark` to create the benchmark submission from the source code. The command zips everything in the `benchmark` folder and saves the zip archive to `submission/submission.zip`. To prevent losing your work, this command will not overwrite an existing submission. To generate a new submission, you will first need to remove the existing `submission/submission.zip`.
+The [benchmark solution](todo blogpost link) can serve as a concrete example of how to create a submission. Use `make pack-benchmark` to create the benchmark submission from the source code. The command zips everything in the `benchmark` folder and saves the zip archive to `submission/submission.zip`. To prevent losing your work, this command will not overwrite an existing submission. To generate a new submission, you will first need to remove the existing `submission/submission.zip`.
 
 ### Running your submission
 
-Now you can make sure your submission runs locally prior to submitting it to the platform. Make sure you have the [prerequisites](#prerequisites) installed, and have copied the `train_features` images into the `runtime/test_features` directory. Then, run the following command to download the official image:
+Now you can make sure your submission runs locally prior to submitting it to the platform. Make sure you have the [prerequisites](#prerequisites) installed, and have [pset up some fake data](#fake-test-data). Then, run the following command to download the official image:
 
 ```bash
 make pull
