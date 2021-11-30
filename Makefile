@@ -90,7 +90,7 @@ ifeq (,$(wildcard ./submission/submission.zip))
 	  If you want to use the benchmark, you can run `make pack-benchmark` first)
 endif
 
-# if container does not exists, error and tell user to pull or build
+# if container does not exist, error and tell user to pull or build
 ifeq (${SUBMISSION_IMAGE},)
 	$(error To test your submission, you must first run `make pull` (to get official container) or `make build` \
 		(to build a local version if you have changes).)
