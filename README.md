@@ -58,7 +58,7 @@ This section explains how to test out the full execution pipeline, including how
 
 First you will need some data for your submission to run on. Since we do not give direct access to the test data, you'll need to fake the data in one of two ways:
 
-- Use the train data: On the [Data download page](https://www.drivendata.org/competitions/83/cloud-cover/data/) you'll find instructions on how to download the training data (`data_download_instructions.txt`). Move the TIF images from `train_features` into `runtime/data/test_features`. Also download `train_metadata.csv` to `runtime/data/test_metadata.csv`. Now you should be able to test your submission locally by pretending your training data is the test data expected by the execution environment.
+- **Use the train data:** On the [Data download page](https://www.drivendata.org/competitions/83/cloud-cover/data/) you'll find instructions on how to download the training data (`data_download_instructions.txt`). Move the TIF images from `train_features` into `runtime/data/test_features`. Also download `train_metadata.csv` to `runtime/data/test_metadata.csv`. Now you should be able to test your submission locally by pretending your training data is the test data expected by the execution environment.
 
 ```sh
 $ tree runtime/data
@@ -77,7 +77,7 @@ $ tree runtime/data
 └── test_metadata.csv
 ```
 
-- Generate fake data: We have included a script that will generate random images and metadata that are the same format as the actual test data. Don't expect to do very well on these!
+- **Generate fake data:** We have included a script that will generate random images and metadata that are the same format as the actual test data. Don't expect to do very well on these!
 
 ```sh
 $ python runtime/scripts/generate_fake_inputs.py runtime/data
