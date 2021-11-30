@@ -14,7 +14,7 @@ The [Planetary Computer Hub](https://planetarycomputer.microsoft.com/docs/overvi
 
 This repository has three primary uses for competitors:
 
-- **Example for developing your solutions**: You can find two examples to help you develop your solution. The first is a [baseline solution](https://github.com/drivendataorg/cloud-cover-runtime/tree/master/submission_src) which does not do very much but will run in the runtime environment and outputs a proper submission. You can use this as a guide to bring in your model and generate a submission. The second is an implementation of the [PyTorch benchmark](https://github.com/drivendataorg/cloud-cover-runtime/tree/main/benchmark_src) based on the [TODO: benchmark blog post](https://www.drivendata.co/blog/).
+- **Example for developing your solutions**: You can find two examples to help you develop your solution. The first is a [baseline solution](https://github.com/drivendataorg/cloud-cover-runtime/tree/main/submission_src) which does not do very much but will run in the runtime environment and outputs a proper submission. You can use this as a guide to bring in your model and generate a submission. The second is an implementation of the [PyTorch benchmark](https://github.com/drivendataorg/cloud-cover-runtime/tree/main/benchmark_src) based on the [TODO: benchmark blog post](https://www.drivendata.co/blog/).
 
 - **Testing your code submission**: Test your `submission.zip` file with a locally running version of the container to discover errors before submitting it to the competition site. You can also find an [evaluation script](https://github.com/drivendataorg/cloud-cover-runtime/blob/main/runtime/scripts/metric.py) for implementing the competition metric.
 
