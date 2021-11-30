@@ -77,19 +77,19 @@ $ tree runtime/data
 └── test_metadata.csv
 ```
 
-- **Generate fake data:** We have included a script that will generate random images and metadata that are the same format as the actual test data. Don't expect to do very well on these!
+- **Generate fake data:** We have included a script that will generate random images and metadata that are the same format as the actual test data. Don't expect to do very well on these! You can specify the number of chips (`--n`) and random seed (`--seed`).
 
 ```sh
-$ python runtime/scripts/generate_fake_inputs.py runtime/data
+$ python runtime/scripts/generate_fake_inputs.py runtime/data --n 10 --seed 304
 
 $ tree runtime/data
 ├── test_features
-│   ├── 0000
+│   ├── 0
 │   │   ├── B02.tif
 │   │   ├── B03.tif
 │   │   ├── B04.tif
 │   │   └── B08.tif
-│   ├── 0001
+│   ├── 1
 │   │   ├── B02.tif
 │   │   ├── B03.tif
 │   ...
