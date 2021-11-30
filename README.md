@@ -14,7 +14,7 @@ The [Planetary Computer Hub](https://planetarycomputer.microsoft.com/docs/overvi
 
 This repository has three primary uses for competitors:
 
-- **Example for developing your solutions**: You can find two examples to help you develop your solution. The first is a [baseline solution](https://github.com/drivendataorg/cloud-cover-runtime/tree/main/submission_src) which does not do very much but will run in the runtime environment and outputs a proper submission. You can use this as a guide to bring in your model and generate a submission. The second is an implementation of the [PyTorch benchmark](https://github.com/drivendataorg/cloud-cover-runtime/tree/main/benchmark_src) based on the [TODO: benchmark blog post](https://www.drivendata.co/blog/).
+- **Example for developing your solutions**: You can find two examples to help you develop your solution. The first is a [baseline solution](https://github.com/drivendataorg/cloud-cover-runtime/tree/main/submission_src) which does not do very much but will run in the runtime environment and outputs a proper submission. You can use this as a guide to bring in your model and generate a submission. The second is an implementation of the [PyTorch benchmark](https://github.com/drivendataorg/cloud-cover-runtime/tree/main/benchmark_src) based on the [benchmark blog post](https://www.drivendata.co/blog/cloud-cover-benchmark/).
 
 - **Test your code submission**: Test your `submission.zip` file with a locally running version of the container to discover errors before submitting it to the competition site. You can also find an [evaluation script](https://github.com/drivendataorg/cloud-cover-runtime/blob/main/runtime/scripts/metric.py) for implementing the competition metric.
 
@@ -317,7 +317,7 @@ The [submission format page](https://www.drivendata.org/competitions/83/cloud-co
 
 ### Example benchmark submission
 
-The [benchmark solution](todo blogpost link) can serve as a concrete example of how to create a submission. Use `make pack-benchmark` to create the benchmark submission from the source code. The command zips everything in the `benchmark` folder and saves the zip archive to `submission/submission.zip`. To prevent losing your work, this command will not overwrite an existing submission. To generate a new submission, you will first need to remove the existing `submission/submission.zip`.
+The [benchmark solution](https://www.drivendata.co/blog/cloud-cover-benchmark/) can serve as a concrete example of how to create a submission. Use `make pack-benchmark` to create the benchmark submission from the source code. The command zips everything in the `benchmark` folder and saves the zip archive to `submission/submission.zip`. To prevent losing your work, this command will not overwrite an existing submission. To generate a new submission, you will first need to remove the existing `submission/submission.zip`.
 
 ### Running your submission
 
