@@ -57,37 +57,45 @@ To test out the full execution pipeline, run the following commands in order in 
 **Note:** On machines with `nvidia-smi` but a CUDA version other than 11, `make` will automatically select the GPU image, which will fail. In this case, you will have to set `CPU_OR_GPU=cpu` manually in the commands, e.g., `CPU_OR_GPU=cpu make pull`, `CPU_OR_GPU=cpu make test-submission`. If you want to try using the GPU image on your machine but you don't have a GPU device that can be recognized, you can use `SKIP_GPU=true` which will invoke `docker` without the `--gpus all` argument.
 
 There two ways to "fake" access to the test features:
-- Use the train features: Follow the instructions from the [Data download page](https://www.drivendata.org/competitions/83/cloud-cover/data/) to download the TIF files from `training_features` into `runtime/data/test_features` so that you can test locally by pretending your training data is the actual test data expected by the execution environment but which you don't have locally.
+- Use the train data: Follow the instructions from the [Data download page](https://www.drivendata.org/competitions/83/cloud-cover/data/) to download the TIF files from `training_features` into `runtime/data/test_features` and metadata CSV from `training_metadata.csv` into `runtime/data/test_metadata.csv` so that you can test locally by pretending your training data is the actual test data expected by the execution environment but which you don't have locally.
 
 ```sh
-$ tree runtime/data/test_features | head
-├── adwp
-│   ├── B02.tif
-│   ├── B03.tif
-│   ├── B04.tif
-│   └── B08.tif
-├── adwu
-│   ├── B02.tif
-│   ├── B03.tif
-│   ├── B04.tif
+$ tree runtime/data
+├── test_features
+│   ├── 0000
+│	├── adwp
+│	│   ├── B02.tif
+│	│   ├── B03.tif
+│	│   ├── B04.tif
+│	│   └── B08.tif
+│	├── adwu
+│	│   ├── B02.tif
+│	│   ├── B03.tif
+│	│   ├── B04.tif
+│       └── B08.tif
+│   ...
+└── test_metadata.csv
 ```
 
 - Generate fake data: We have included a script that will generate random images that are the same format as the actual test features. Don't expect to do very well on these!
 
 ```sh
-$ python runtime/scripts/generate_fake_inputs.py runtime/data/test_features
+$ python runtime/scripts/generate_fake_inputs.py runtime/data
 
-$ tree runtime/data/test_features | head
-├── 0000
-│   ├── B02.tif
-│   ├── B03.tif
-│   ├── B04.tif
-│   └── B08.tif
-├── 0001
-│   ├── B02.tif
-│   ├── B03.tif
-│   ├── B04.tif
+$ tree runtime/data
+├── test_features
+│   ├── 0000
+│   │   ├── B02.tif
+│   │   ├── B03.tif
+│   │   ├── B04.tif
+│   │   └── B08.tif
+│   ├── 0001
+│   │   ├── B02.tif
+│   │   ├── B03.tif
+│   ...
+└── test_metadata.csv
 ```
+
 Whichever version of the fake data you choose, now you're ready to run the benchmark code:
 
 ```bash
