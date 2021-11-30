@@ -249,9 +249,9 @@ In Docker parlance, your computer is the "host" that runs the container. The con
  - the `data` directory on the host machine is mounted in the container as a read-only directory `/codeexecution/data`
  - the `submission` directory on the host machine is mounted in the container as `/codeexecution/submission`
 
-When you make a code submission, the code execution platform will unzip your submission assets to the `/codeexecution` folder. This must result in a `main.py` in the top level `/codeexecution` working directory. (Important: make sure your `main.py` is included at the top level of your zipped submission and not in a directory.)
+When you make a code submission, the code execution platform will unzip your submission assets to the `/codeexecution` folder. This must result in a `main.py` in the top level `/codeexecution` working directory. **Make sure your `main.py` is included at the top level of your zipped submission and not in a directory.**
 
-On the official code execution platform, we will take care of mounting the data―you can assume your submission will have access to `/codeexecution/data/test_features` and `/codeexecution/data/test_metadata.csv`. You are responsible for creating the submission script that will read from `/codeexecution/data` and write out `.tif`s to `/codeexecution/predictions`. Once your code finishes, we run some validation tests on your predictions and then the script will compress all the `.tif`s into a tar archive to be sent to the platform for scoring.
+On the official code execution platform, we will take care of mounting the data―you can assume your submission will have access to `/codeexecution/data/test_features` and `/codeexecution/data/test_metadata.csv`. You are responsible for creating the submission script that will read from `/codeexecution/data` and write out `.tif`s to `/codeexecution/predictions`. Once your code finishes, we will run some validation tests on your predictions. Then all of the `.tif`s will be compressed into a tar archive and scored.
 
 For reference, here is the relevant directory structure inside the container. **Your `main.py` should read from `/codeexecution/data/test_features` and write to `/codeexecution/predictions` in order to generate a valid submission.**
 
@@ -304,7 +304,7 @@ import os
 os.environ["TORCH_HOME"] = "/codeexecution/assets/torch"
 ```
 
-Now PyTorch will load the model weights from the local cache, and your submission will run correctly in the code execution environment.
+Now PyTorch will load the model weights from the local cache, and your submission will run correctly in the code execution environment without downloading from the internet.
 
 
 ### Implement your solution
@@ -321,13 +321,17 @@ The [benchmark solution](https://www.drivendata.co/blog/cloud-cover-benchmark/) 
 
 ### Running your submission
 
-Now you can make sure your submission runs locally prior to submitting it to the platform. Make sure you have the [prerequisites](#prerequisites) installed, and have [pset up some fake data](#fake-test-data). Then, run the following command to download the official image:
+Now you can make sure your submission runs locally prior to submitting it to the platform.
+
+1. Install the [prerequisites](#prerequisites)
+1. Set up some [fake data](#fake-test-data)
+1. Run the following command to download the official image:
 
 ```bash
 make pull
 ```
 
-Again, make sure you have packed up your solution in `submission/submission.zip` (or generated the sample submission with `make pack-submission`), then try running it:
+1. Make sure you have packed up your solution in `submission/submission.zip` (or generated the sample submission with `make pack-submission`), then try running it:
 
 ```bash
 make test-submission
