@@ -16,7 +16,7 @@ exit_code=0
 
     if [ -z "$(find data/test_features -type f | head -1)" ]; then
         echo "ERROR: No input files detected. If you are testing the container with
-        `make test-submission`, are there files in `runtime/data/test_features`?"
+        'make test-submission', are there files in 'runtime/data/test_features'?"
         exit_code=1
     else
         if [ -f "main.py" ]
