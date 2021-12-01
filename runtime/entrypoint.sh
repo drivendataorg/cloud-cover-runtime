@@ -49,5 +49,4 @@ exit_code=0
 } |& tee "/codeexecution/submission/log.txt"
 
 cp /codeexecution/submission/log.txt /tmp/log
-echo $exit_code
 exit $exit_code
