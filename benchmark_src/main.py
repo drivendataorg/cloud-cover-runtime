@@ -22,8 +22,8 @@ ASSETS_DIRECTORY = ROOT_DIRECTORY / "assets"
 DATA_DIRECTORY = ROOT_DIRECTORY / "data"
 INPUT_IMAGES_DIRECTORY = DATA_DIRECTORY / "test_features"
 
-# Make sure the smp loader can find our torch assets because we don't have internet!
-os.environ["TORCH_HOME"] = str(ASSETS_DIRECTORY / "assets/torch")
+# Set the pytorch cache directory and include cached models in your submission.zip
+os.environ["TORCH_HOME"] = str(ASSETS_DIRECTORY / "torch")
 
 
 def get_metadata(features_dir: os.PathLike, bands: List[str]):
@@ -113,7 +113,7 @@ def main(
     predictions_dir.mkdir(exist_ok=True, parents=True)
 
     logger.info("Loading model")
-    model = CloudModel(bands=bands, hparams={"weights": None})
+    model = CloudModel(bands=bands, hparams={"weights": None, "batch_size": 1})
     model.load_state_dict(torch.load(model_weights_path))
 
     logger.info("Loading test metadata")

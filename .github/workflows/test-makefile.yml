@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Pull images, pack benchmark, test-submission
+    name: Pull images, pack benchmark, test submission
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -21,12 +21,12 @@ jobs:
 
       - name: Create some fake data
         run: |
-          pip install -U numpy Pillow typer
-          python runtime/scripts/generate_fake_inputs.py runtime/data/test_features
+          pip install -U numpy pandas Pillow typer
+          python runtime/scripts/generate_fake_inputs.py runtime/data --n 4 --seed 45
 
       - name: Test zipping benchmark
         run: |
-          make pack-submission
+          make pack-benchmark
 
       - name: Pull latest image and run submission in container
         run: |

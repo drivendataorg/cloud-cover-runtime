@@ -5,8 +5,6 @@ from tifffile import imread
 import typer
 from tqdm import tqdm
 
-NA_VALUE = 255
-
 
 def iterate_through_mask_pairs(submission_dir: Path, actual_dir: Path):
     """
