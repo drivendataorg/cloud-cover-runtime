@@ -382,17 +382,25 @@ If you're new to the GitHub contribution workflow, check out [this guide by GitH
 
 ### Adding new Python packages
 
-We use [conda](https://docs.conda.io/en/latest/) to manage Python dependencies. Add your new dependencies to both `runtime/environment-cpu.yml` and `runtime/environment-gpu.yml`.
+If you want to use a package that is not in the environment, you are welcome to make a pull request to this repository. We use [conda](https://docs.conda.io/en/latest/) to manage Python dependencies. [Here is a good general guide](https://towardsdatascience.com/a-guide-to-conda-environments-bc6180fc533) to conda environments.
 
-Your new dependency should follow the format in the yml.
+1. Fork this repository,
+1. Edit the [conda](https://docs.conda.io/en/latest/) environment YAML files, `runtime/environment-cpu.yml` and `runtime/environment-gpu.yml`. There are two ways to add a requirement:
+ - Add an entry to the `dependencies` section. This installs from a conda channel using `conda install`. Conda performs robust dependency resolution with other packages in the `dependencies` section, so we can avoid package version conflicts.
+ - Add an entry to the `pip` section. This installs from PyPI using `pip, and is an option for packages that are not available in a conda channel.
 
-### Opening a pull request
+For both methods, be sure to include the exact version pin, e.g., `numpy==1.20.3`, so that we can be sure that all environments use the exact same package versions.
 
-After making and testing your changes, commit your changes and push to your fork. Then, when viewing the repository on github.com, you will see a banner that lets you open the pull request. For more detailed instructions, check out [GitHub's help page](https://help.github.com/en/articles/creating-a-pull-request-from-a-fork).
+1. Locally test that the Docker image builds successfully for CPU and GPU images by running:
 
-Once you open the pull request, Github Actions will automatically try building the Docker images with your changes and run the tests in `runtime/tests`. These tests can take up to 30 minutes to run through, and may take longer if your build is queued behind others. You will see a section on the pull request page that shows the status of the tests and links to the logs.
-
-You may be asked to submit revisions to your pull request if the tests fail, or if a DrivenData team member asks for revisions. Pull requests won't be merged until all tests pass and the team has reviewed and approved the changes.
+```sh
+CPU_OR_GPU=cpu make build
+CPU_OR_GPU=gpu make build
+```
+1. Commit your changes to your fork.
+1. Open a pull request from your branch to the `main` branch of this repository. Navigate to the [Pull requests](https://github.com/drivendataorg/cloud-cover-runtime/pulls) tab in this repository, and click the "New pull request" button. For more detailed instructions, check out [GitHub's help page](https://help.github.com/en/articles/creating-a-pull-request-from-a-fork).
+1. Once you open the pull request, Github Actions will automatically try building the Docker images with your changes and run the tests in `runtime/tests`. These tests can take up to 30 minutes to run through, and may take longer if your build is queued behind others. You will see a section on the pull request page that shows the status of the tests and links to the logs.
+1. You may be asked to submit revisions to your pull request if the tests fail, or if a DrivenData team member asks for revisions. Pull requests won't be merged until all tests pass and the team has reviewed and approved the changes.
 
 ---
 
