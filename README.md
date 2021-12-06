@@ -371,18 +371,7 @@ When you run `make test-submission` the logs will be printed to the terminal. Th
 
 ## (2) Updating the runtime packages
 
-We accept contributions to add dependencies to the runtime environment. To do so, follow these steps:
-
-1. Fork this repository
-2. Make your changes
-3. Test them and commit using git
-3. Open a pull request to this repository
-
-If you're new to the GitHub contribution workflow, check out [this guide by GitHub](https://guides.github.com/activities/forking/).
-
-### Adding new Python packages
-
-If you want to use a package that is not in the environment, you are welcome to make a pull request to this repository. We use [conda](https://docs.conda.io/en/latest/) to manage Python dependencies. [Here is a good general guide](https://towardsdatascience.com/a-guide-to-conda-environments-bc6180fc533) to conda environments.
+If you want to use a package that is not in the environment, you are welcome to make a pull request to this repository. If you're new to the GitHub contribution workflow, check out [this guide by GitHub](https://docs.github.com/en/get-started/quickstart/contributing-to-projects). The runtime manages dependencies using [conda](https://docs.conda.io/en/latest/) environments. [Here is a good general guide](https://towardsdatascience.com/a-guide-to-conda-environments-bc6180fc533) to conda environments. Follow these steps:
 
 1. Fork this repository.
 2. Edit the [conda](https://docs.conda.io/en/latest/) environment YAML files, `runtime/environment-cpu.yml` and `runtime/environment-gpu.yml`. There are two ways to add a requirement:
