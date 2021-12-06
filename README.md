@@ -384,7 +384,7 @@ If you're new to the GitHub contribution workflow, check out [this guide by GitH
 
 If you want to use a package that is not in the environment, you are welcome to make a pull request to this repository. We use [conda](https://docs.conda.io/en/latest/) to manage Python dependencies. [Here is a good general guide](https://towardsdatascience.com/a-guide-to-conda-environments-bc6180fc533) to conda environments.
 
-1. Fork this repository,
+1. Fork this repository.
 2. Edit the [conda](https://docs.conda.io/en/latest/) environment YAML files, `runtime/environment-cpu.yml` and `runtime/environment-gpu.yml`. There are two ways to add a requirement:
  - Add an entry to the `dependencies` section. This installs from a conda channel using `conda install`. Conda performs robust dependency resolution with other packages in the `dependencies` section, so we can avoid package version conflicts.
  - Add an entry to the `pip` section. This installs from PyPI using `pip`, and is an option for packages that are not available in a conda channel.
