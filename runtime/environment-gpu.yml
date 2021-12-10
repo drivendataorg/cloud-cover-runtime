@@ -27,6 +27,7 @@ dependencies:
   - pyepsg=0.4.0
   - pygeos=0.10.1
   - pyproj=3.3.0
+  - pystac-client
   - pytest=6.2.4
   - python=3.9.7
   - pytorch-lightning=1.4.1
@@ -37,6 +38,7 @@ dependencies:
   - scipy=1.7.1
   - segmentation-models-pytorch=0.2.0
   - shapely=1.7.1
+  - stackstac
   - tifffile=2021.8.8
   - tiledb=2.3.2
   - timm=0.4.12
@@ -44,6 +46,7 @@ dependencies:
   - tqdm=4.62.0
   - typer=0.3.2
   - xarray=0.19.0
+  - xarray-spatial
   - pip:
     - cloudpathlib[azure]==0.6.2
     - lightning-flash[image]==0.5.0
