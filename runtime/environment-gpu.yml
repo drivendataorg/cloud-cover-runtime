@@ -56,4 +56,5 @@ dependencies:
     - segmentation-models==1.0.1
     - tensorflow-gpu==2.6.0
     - ttach==0.0.3
+    - crfseg==1.0.0
     - xarray-spatial==0.3.0
