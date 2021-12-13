@@ -53,3 +53,4 @@ dependencies:
     - segmentation-models==1.0.1
     - tensorflow-cpu==2.6.0
     - ttach==0.0.3
+    - xarray-spatial==0.3.0
