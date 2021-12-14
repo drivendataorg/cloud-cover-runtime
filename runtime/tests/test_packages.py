@@ -9,15 +9,16 @@ import pytest
 packages = [
     # these are problem libraries that don't always seem to import, mostly due
     # to dependencies outside the python world
-    "rasterio",
-    "xarray",
     "fastai",
-    "pandas",
+    "keras",
     "numpy",
-    "torch",  # pytorch
-    "sklearn",  # scikit-learn
+    "pandas",
+    "rasterio",
     "scipy",
+    "sklearn",  # scikit-learn
     "tensorflow",
+    "torch",  # pytorch
+    "xarray",
 ]
 
 
