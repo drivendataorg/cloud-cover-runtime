@@ -1,0 +1,131 @@
+$ make pack-benchmark
+cd benchmark_src; zip -r ../submission/submission.zip ./*
+  adding: assets/ (stored 0%)
+  adding: assets/torch/ (stored 0%)
+  adding: assets/torch/hub/ (stored 0%)
+  adding: assets/torch/hub/checkpoints/ (stored 0%)
+  adding: assets/torch/hub/checkpoints/resnet34-333f7ec4.pth (deflated 7%)
+  adding: assets/cloud_model.pt (deflated 8%)
+  adding: cloud_dataset.py (deflated 63%)
+  adding: cloud_model.py (deflated 74%)
+  adding: losses.py (deflated 57%)
+  adding: main.py (deflated 65%)
+
+$ SKIP_GPU=true make test-submission
+chmod -R 0777 submission/
+docker run \
+        -it \
+         \
+        --rm \
+        --name cloud_cover_submission \
+        --mount type=bind,source="/home/robert/projects/cloud-cover-runtime"/runtime/data,target=/codeexecution/data,readonly \
+        --mount type=bind,source="/home/robert/projects/cloud-cover-runtime"/runtime/tests,target=/codeexecution/tests,readonly \
+        --mount type=bind,source="/home/robert/projects/cloud-cover-runtime"/runtime/entrypoint.sh,target=/codeexecution/entrypoint.sh \
+        --mount type=bind,source="/home/robert/projects/cloud-cover-runtime"/submission,target=/codeexecution/submission \
+        --shm-size 8g \
+        5c6354f18833
++ exit_code=0
++ tee /codeexecution/submission/log.txt
++ cd /codeexecution
++ echo 'List installed packages'
+List installed packages
++ echo '######################################'
+######################################
++ conda list -n condaenv
+# packages in environment at /srv/conda/envs/condaenv:
+#
+# Name                    Version                   Build  Channel
+_libgcc_mutex             0.1                 conda_forge    conda-forge
+_openmp_mutex             4.5                      1_llvm    conda-forge
+...
+zlib                      1.2.11            h36c2ea0_1013    conda-forge
+zstd                      1.5.0                ha95c52a_0    conda-forge
++ echo '######################################'
+######################################
++ echo 'Unpacking submission...'
+Unpacking submission...
++ unzip ./submission/submission.zip -d ./
+Archive:  ./submission/submission.zip
+   creating: ./assets/
+   creating: ./assets/torch/
+   creating: ./assets/torch/hub/
+   creating: ./assets/torch/hub/checkpoints/
+  inflating: ./assets/torch/hub/checkpoints/resnet34-333f7ec4.pth
+  inflating: ./assets/cloud_model.pt
+  inflating: ./cloud_dataset.py
+  inflating: ./cloud_model.py
+  inflating: ./losses.py
+  inflating: ./main.py
++ ls -alh
+total 56K
+drwxr-xr-x 1 appuser appuser 4.0K Nov 18 19:12 .
+drwxr-xr-x 1 root    root    4.0K Nov 18 19:12 ..
+drwxrwxr-x 3 appuser appuser 4.0K Nov 18 18:39 assets
+-rw-rw-r-- 1 appuser appuser 2.4K Nov 18 17:33 cloud_dataset.py
+-rw-rw-r-- 1 appuser appuser 6.9K Nov 18 18:03 cloud_model.py
+drwxrwxr-x 4 appuser appuser 4.0K Nov 18 17:55 data
+-rw-rw-r-- 1 appuser appuser 1.1K Oct  8 19:58 entrypoint.sh
+-rw-rw-r-- 1 appuser appuser  699 Nov 18 17:34 losses.py
+-rw-rw-r-- 1 appuser appuser 4.7K Nov 18 18:38 main.py
+drwxr-xr-x 2 appuser appuser 4.0K Nov 17 21:38 scripts
+drwxrwxrwx 2 appuser appuser 4.0K Nov 18 19:12 submission
+drwxrwxr-x 2 appuser appuser 4.0K Nov 18 18:25 tests
++ '[' -f main.py ']'
++ echo 'Running submission with Python'
+Running submission with Python
++ conda run --no-capture-output -n condaenv python main.py
+/srv/conda/envs/condaenv/lib/python3.9/site-packages/pretrainedmodels/models/dpn.py:255: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  if block_type is 'proj':
+/srv/conda/envs/condaenv/lib/python3.9/site-packages/pretrainedmodels/models/dpn.py:258: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  elif block_type is 'down':
+/srv/conda/envs/condaenv/lib/python3.9/site-packages/pretrainedmodels/models/dpn.py:262: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  assert block_type is 'normal'
+2021-11-18 19:12:40.810 | INFO     | __main__:main:111 - Loading model
+2021-11-18 19:12:41.307 | INFO     | __main__:main:115 - Loading test metadata
+2021-11-18 19:12:41.313 | INFO     | __main__:main:119 - Found 10 chips
+2021-11-18 19:12:41.314 | INFO     | __main__:main:121 - Generating predictions in batches
+  0%|          | 0/1 [00:00<?, ?it/s]/srv/conda/envs/condaenv/lib/python3.9/site-packages/rasterio/__init__.py:220: NotGeoreferencedWarning: Dataset has no geotransform, gcps, or rpcs. The identity matrix be returned.
+  s = DatasetReader(path, driver=driver, sharing=sharing, **kwargs)
+100%|██████████| 1/1 [00:08<00:00,  8.81s/it]
+2021-11-18 19:12:50.137 | INFO     | __main__:main:124 - Saving predictions to /codeexecution/submission
+100%|██████████| 10/10 [00:00<00:00, 169.59it/s]
+2021-11-18 19:12:50.197 | INFO     | __main__:main:126 - Saved 10 predictions
++ echo 'Testing that submission is valid'
+Testing that submission is valid
++ conda run -n condaenv pytest -v tests/test_submission.py
+============================= test session starts ==============================
+platform linux -- Python 3.9.7, pytest-6.2.4, py-1.11.0, pluggy-0.13.1 -- /srv/conda/envs/condaenv/bin/python
+cachedir: .pytest_cache
+rootdir: /codeexecution
+collecting ... collected 3 items
+
+tests/test_submission.py::test_all_files_in_format_have_corresponding_submission_file PASSED [ 33%]
+tests/test_submission.py::test_no_unexpected_tif_files_in_submission PASSED [ 66%]
+tests/test_submission.py::test_file_sizes_are_within_limit PASSED        [100%]
+
+=============================== warnings summary ===============================
+../srv/conda/envs/condaenv/lib/python3.9/site-packages/skimage/data/__init__.py:111: 29 warnings
+  /srv/conda/envs/condaenv/lib/python3.9/site-packages/skimage/data/__init__.py:111: DeprecationWarning:
+      Importing file_hash from pooch.utils is DEPRECATED. Please import from the
+      top-level namespace (`from pooch import file_hash`) instead, which is fully
+      backwards compatible with pooch >= 0.1.
+
+    return file_hash(path) == expected_hash
+
+-- Docs: https://docs.pytest.org/en/stable/warnings.html
+======================== 3 passed, 29 warnings in 1.14s ========================
+
++ echo 'Compressing files in a gzipped tar archive for submission'
+Compressing files in a gzipped tar archive for submission
++ cd ./submission
++ tar czf ./submission.tar.gz 0000.tif 0001.tif 0002.tif 0003.tif 0004.tif 0005.tif 0006.tif 0007.tif 0008.tif 0009.tif
++ rm ./0000.tif ./0001.tif ./0002.tif ./0003.tif ./0004.tif ./0005.tif ./0006.tif ./0007.tif ./0008.tif ./0009.tif
++ cd ..
++ echo '... finished'
+... finished
++ du -h submission/submission.tar.gz
+376K    submission/submission.tar.gz
++ echo '================ END ================'
+================ END ================
++ cp /codeexecution/submission/log.txt /tmp/log
++ exit 0
