@@ -58,3 +58,4 @@ dependencies:
     - ttach==0.0.3
     - crfseg==1.0.0
     - xarray-spatial==0.3.0
+    - nnunet==1.7.0
