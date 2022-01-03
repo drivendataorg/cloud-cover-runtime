@@ -98,7 +98,7 @@ For the full requirements of a submission, see the Code submission format [page]
 
 ### Running your submission locally
 
-This section provides instructions on how to run the your submission in the code execution container from your local machine. To simplify the steps, key processes have been defined in the `Makefile`. Commands from the `Makefile` are then run with `make {command_name}`. The basic steps are:
+This section provides instructions on how to run your submission in the code execution container from your local machine. To simplify the steps, key processes have been defined in the `Makefile`. Commands from the `Makefile` are then run with `make {command_name}`. The basic steps are:
 ```
 make pull
 make pack-submission
