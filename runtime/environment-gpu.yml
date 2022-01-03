@@ -55,6 +55,7 @@ dependencies:
     - nnunet==1.7.0
     - pandas_path==0.3.0
     - planetary-computer==0.4.2
+    - rioxarray==0.9.0
     - segmentation-models==1.0.1
     - tensorflow-gpu==2.6.0
     - ttach==0.0.3
