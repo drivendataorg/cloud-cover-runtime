@@ -14,6 +14,7 @@ packages = [
     "numpy",
     "pandas",
     "rasterio",
+    "rioxarray",
     "scipy",
     "sklearn",  # scikit-learn
     "tensorflow",

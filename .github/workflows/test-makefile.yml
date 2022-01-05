@@ -21,7 +21,7 @@ jobs:
 
       - name: Create some fake data
         run: |
-          pip install -U numpy pandas Pillow typer
+          pip install -U numpy pandas Pillow==8.2.0 typer
           python runtime/scripts/generate_fake_inputs.py runtime/data --n 4 --seed 45
 
       - name: Test zipping benchmark

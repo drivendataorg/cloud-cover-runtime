@@ -12,7 +12,7 @@ Welcome to the runtime repository for the [Cloud Cover Challenge](https://www.dr
 This repository has three primary uses for competitors:
 
 :bulb: **Provide example solutions**: You can find two examples to help you develop your solution. 
-1. [Baseline solution](https://github.com/drivendataorg/cloud-cover-runtime/tree/main/submission_src): minimal code that runs succesfully in the runtime environment output and outputs a proper submission. This simply predicts zeros for ever chip. You can use this as a guide to bring in your model and generate a submission.
+1. [Baseline solution](https://github.com/drivendataorg/cloud-cover-runtime/tree/main/submission_src): minimal code that runs succesfully in the runtime environment and outputs a proper submission. This simply predicts zeros for ever chip. You can use this as a guide to bring in your model and generate a submission.
 2. Implementation of the [PyTorch benchmark](https://github.com/drivendataorg/cloud-cover-runtime/tree/main/benchmark_src): submission code based on the [benchmark blog post](https://www.drivendata.co/blog/cloud-cover-benchmark/)
 
 :wrench: **Test your submission**: Test your `submission` files with a locally running version of the container to discover errors before submitting to the competition site. You can also find an [evaluation script](https://github.com/drivendataorg/cloud-cover-runtime/blob/main/runtime/scripts/metric.py) for implementing the competition metric.
@@ -98,7 +98,7 @@ For the full requirements of a submission, see the Code submission format [page]
 
 ### Running your submission locally
 
-This section provides instructions on how to run the your submission in the code execution container from your local machine. To simplify the steps, key processes have been defined in the `Makefile`. Commands from the `Makefile` are then run with `make {command_name}`. The basic steps are:
+This section provides instructions on how to run your submission in the code execution container from your local machine. To simplify the steps, key processes have been defined in the `Makefile`. Commands from the `Makefile` are then run with `make {command_name}`. The basic steps are:
 ```
 make pull
 make pack-submission
