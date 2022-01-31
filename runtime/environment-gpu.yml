@@ -10,6 +10,7 @@ dependencies:
   - cudatoolkit=11.1.74=h6bb024c_0
   - cudnn=8.2.1.32=h86fa8c9_0
   - fastai=2.5.0
+  - geopandas=0.10.2
   - geos=3.9.1
   - geotiff=1.6.0
   - h5py=3.1.0
@@ -20,6 +21,7 @@ dependencies:
   - numpy=1.20.3
   - numba=0.54.1
   - pandas=1.2.5
+  - pathlib2=2.3.6
   - pillow=8.2.0
   - pip=20.3.4
   - pydantic=1.8.2
@@ -42,6 +44,7 @@ dependencies:
   - tifffile=2021.8.8
   - tiledb=2.3.2
   - timm=0.4.12
+  - torchmetrics=0.7.0
   - torchvision=0.9.1=py39cuda111hcd06603_1_cuda
   - tqdm=4.62.0
   - typer=0.3.2
