@@ -7,7 +7,6 @@ dependencies:
   - albumentations=1.0.3
   - catboost=0.26.1
   - fastai=2.5.0
-  - geopandas=0.10.2
   - geos=3.9.1
   - geotiff=1.6.0
   - h5py=3.1.0
