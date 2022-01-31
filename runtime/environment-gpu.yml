@@ -10,7 +10,6 @@ dependencies:
   - cudatoolkit=11.1.74=h6bb024c_0
   - cudnn=8.2.1.32=h86fa8c9_0
   - fastai=2.5.0
-  - geopandas=0.10.2
   - geos=3.9.1
   - geotiff=1.6.0
   - h5py=3.1.0
